@@ -1,0 +1,12 @@
+streamlit
+streamlit_drawable_canvas
+streamlit.components.v1
+pandas
+numpy
+altair
+transformers
+torch
+sklearn
+scipy
+lightgbm
+supabase
