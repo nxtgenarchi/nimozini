@@ -5,7 +5,7 @@ numpy
 altair
 transformers
 torch
-sklearn
+scikit-learn
 scipy
 lightgbm
 supabase
