@@ -28,8 +28,9 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 def select_subject(sidebar: bool = False):
     subjects_names = supabase.table("subjects").select("name").execute().data
     chosen_subject_name = st.selectbox("Subjects:", [s["name"] for s in subjects_names]) if not sidebar else st.sidebar.selectbox("Subjects:", [s["name"] for s in subjects_names])
-    chosen_subject_id = supabase.table("subjects").select("id").eq("name", chosen_subject_name).execute().data[0]["id"]
-    return {"id": chosen_subject_id, "name": chosen_subject_name}
+    if chosen_subject_name:
+        chosen_subject_id = supabase.table("subjects").select("id").eq("name", chosen_subject_name).execute().data[0]["id"]
+        return {"id": chosen_subject_id, "name": chosen_subject_name}
 
 # Units
 def select_unit(subject_id: str, sidebar: bool = False):
@@ -656,4 +657,5 @@ def show_page():
     if st.session_state["view_notes"]:
         note_editor()
     else:
+
         select_menu()
