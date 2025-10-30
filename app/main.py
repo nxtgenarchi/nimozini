@@ -12,8 +12,6 @@ def main():
         if auth_value:
             if auth_value == st.secrets.get("PASSWORD", ""):
                 st.session_state["is_auth"] = True
-                st.session_state.pop("auth_input", None)
-                st.rerun()
             else:
                 st.error("Incorrect password.")
                 return
@@ -26,6 +24,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
