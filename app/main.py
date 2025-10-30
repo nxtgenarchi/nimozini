@@ -15,9 +15,6 @@ def main():
             else:
                 st.error("Incorrect password.")
                 return
-        else:
-            st.info("Please enter the app password.")
-            return
     placeholder.write("")
     page = st.sidebar.radio("NIMOZINI", list(pages.keys()))
     pages[page].show_page()
@@ -25,6 +22,7 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
 
 
