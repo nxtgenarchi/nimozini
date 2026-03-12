@@ -26,7 +26,7 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 # Helper functions
 # Subjects
 def select_subject(sidebar: bool = False):
-    subjects_names = supabase.table("subjects").select("name").execute().data
+    subjects_names = supabase.table("public.subjects").select("name").execute().data
     st.write(subjects_names)
     if not subjects_names:
         return {"id": None, "name": None}
