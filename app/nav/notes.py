@@ -661,7 +661,7 @@ def note_editor():
             st.sidebar.success("Block added!")
             st.session_state["add_block"] = False
             st.rerun()
-    chosen_block_delete = st.sidebar.selectbox("Delete Block", ["-"] + [f"Block {i+1}" for i in range(len(get_blocks(st.session_state["view_notes"])) + 1)], key="chosen_block_delete")
+    chosen_block_delete = st.sidebar.selectbox("Delete Block", ["-"] + [f"Block {i+1}" for i in range(len(get_blocks(st.session_state["view_notes"]["subtopic"])) + 1)], key="chosen_block_delete")
     if chosen_block_delete and chosen_block_delete != "-":
         if st.sidebar.checkbox("Confirm Deletion", key="delete_block"):
             st.session_state["delete_block"] = True
