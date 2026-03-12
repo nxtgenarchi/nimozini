@@ -320,6 +320,7 @@ def select_menu():
                         st.rerun()
             if unit_sel_btn:
                 st.session_state["unit_sel_btn"] = True
+            if st.session_state.get("unit_sel_btn"):
 
                 #Topic
                 st.subheader(f"Topics in {chosen_unit['name']}")
@@ -363,7 +364,7 @@ def select_menu():
                                 st.session_state["topic_confupdate_btn"] = False
                                 st.rerun()
                     with col3:
-                        if st.button("Delete Topic", key=f"delete_topic_{chosen_topic_['id']}"):
+                        if st.button("Delete Topic", key=f"delete_topic_{chosen_topic['id']}"):
                             st.session_state["topic_delete_btn"] = True
                         if st.session_state.get("topic_delete_btn"):
                             if st.button("Confirm Delete", key=f"confirm_delete_{chosen_topic['id']}"):
@@ -376,9 +377,10 @@ def select_menu():
                                 st.rerun()
                     if topic_sel_btn:
                         st.session_state["topic_sel_btn"] = True
+                    if st.session_state.get("topic_sel_btn"):
 
                         #Subtopic
-                        st.subheader(f"Subtopics in {chosen_topic_name}")
+                        st.subheader(f"Subtopics in {chosen_topic['name']}")
 
                         # Add new subtopic
                         if st.button("Add New Subtopic"):
