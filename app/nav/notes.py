@@ -391,7 +391,7 @@ def select_menu():
                                 st.session_state["subtopic_confadd_btn"] = True
                             if st.session_state.get("subtopic_confadd_btn"):
                                 if new_subtopic.strip():
-                                    create_subtopic(chosen_topic_id, new_subtopic)
+                                    create_subtopic(chosen_topic["id"], new_subtopic)
                                     st.success("Subtopic added!")
                                 else:
                                     st.error("Subtopic name cannot be empty")
