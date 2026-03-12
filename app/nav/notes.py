@@ -152,7 +152,7 @@ def display_blocks(subtopic_id: str):
                     linked_subtopic_id = block["content"]
                     linked_subtopic_name = supabase.table("subtopics").select("name").eq("id", linked_subtopic_id).execute().data[0]["name"]
                     if st.button(f"Go to {linked_subtopic_name}", key=f"link_{block['id']}"):
-                        st.session_state["view_notes"] = linked_subtopic_id
+                        st.session_state["view_notes"]["subtopic"] = linked_subtopic_id
                         st.rerun()
                 case "fileupload":
                     match block["content"].type.split("/")[0]:
@@ -647,9 +647,9 @@ def note_editor():
     st.sidebar.title("Notes Toolbar")
     chosen_type = st.sidebar.selectbox("Add Block", list(["-"] + list(TYPES.keys())), key="chosen_type")
     if chosen_type and chosen_type != "-":
-        chosen_placement = st.sidebar.selectbox("Choose Placement", ["At End"] + [f"Before Block {i+1}" for i in range(len(get_blocks(st.session_state["view_notes"]))) + 1], key="placement")
+        chosen_placement = st.sidebar.selectbox("Choose Placement", ["At End"] + [f"Before Block {i+1}" for i in range(len(get_blocks(st.session_state["view_notes"]["subtopic"]))) + 1], key="placement")
         if chosen_placement == "At End":
-            order = len(get_blocks(st.session_state["view_notes"])) + 1
+            order = len(get_blocks(st.session_state["view_notes"]["subtopic"])) + 1
         else:
             order = int(chosen_placement.split(" ")[2])
         content = json.dumps(eval(TYPES[chosen_type])())
@@ -657,7 +657,7 @@ def note_editor():
             st.session_state["add_block"] = True
         if st.session_state.get("add_block"):
             new_added_block = create_block(st.session_state["view_notes"]["subtopic"], st.session_state["view_notes"]["subject"], TYPES[chosen_type], content, order, datetime.now().isoformat())
-            update_blocks_order(st.session_state["view_notes"], new_added_block[0]["id"], new_added_block[0]["order_index"])
+            update_blocks_order(st.session_state["view_notes"]["subtopic"], new_added_block[0]["id"], new_added_block[0]["order_index"])
             st.sidebar.success("Block added!")
             st.session_state["add_block"] = False
             st.rerun()
@@ -666,7 +666,7 @@ def note_editor():
         if st.sidebar.checkbox("Confirm Deletion", key="delete_block"):
             st.session_state["delete_block"] = True
         if st.session_state.get("delete_block"):
-            block_id = get_blocks(st.session_state["view_notes"])[int(chosen_block_delete.split(" ")[1]) - 1]["id"]
+            block_id = get_blocks(st.session_state["view_notes"]["subtopic"])[int(chosen_block_delete.split(" ")[1]) - 1]["id"]
             delete_block(block_id)
             st.sidebar.warning("Block deleted!")
             st.session_state["delete_block"] = False
