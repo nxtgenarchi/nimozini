@@ -647,7 +647,7 @@ def note_editor():
     st.sidebar.title("Notes Toolbar")
     chosen_type = st.sidebar.selectbox("Add Block", list(["-"] + list(TYPES.keys())), key="chosen_type")
     if chosen_type and chosen_type != "-":
-        chosen_placement = st.sidebar.selectbox("Choose Placement", ["At End"] + [f"Before Block {i+1}" for i in range(len(get_blocks(st.session_state["view_notes"]["subtopic"]))) + 1], key="placement")
+        chosen_placement = st.sidebar.selectbox("Choose Placement", ["At End"] + [f"Before Block {i+1}" for i in range(len(get_blocks(st.session_state["view_notes"]["subtopic"])) + 1)], key="placement")
         if chosen_placement == "At End":
             order = len(get_blocks(st.session_state["view_notes"]["subtopic"])) + 1
         else:
