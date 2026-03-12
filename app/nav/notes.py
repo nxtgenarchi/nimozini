@@ -642,7 +642,7 @@ TYPES = {"Text": "text", "Header": "header", "URL": "url", "Internal Link": "int
 def note_editor():
     display_blocks(st.session_state["view_notes"]["subtopic"])
     st.sidebar.divider()
-    pomodoro_timer()
+    pomodoro()
     st.sidebar.divider()
     st.sidebar.title("Notes Toolbar")
     chosen_type = st.sidebar.selectbox("Add Block", list(["-"] + list(TYPES.keys())), key="chosen_type")
