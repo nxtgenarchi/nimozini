@@ -333,7 +333,7 @@ def select_menu():
                         st.session_state["topic_confadd_btn"] = True
                     if st.session_state.get("topic_confadd_btn"):
                         if new_topic.strip():
-                            create_topic(chosen_unit_id, new_topic)
+                            create_topic(chosen_unit["id"], new_topic)
                             st.success("Topic added!")
                         else:
                             st.error("Topic name cannot be empty")
