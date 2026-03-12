@@ -27,20 +27,28 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 # Subjects
 def select_subject(sidebar: bool = False):
     subjects_names = supabase.table("subjects").select("name").execute().data
+    if not subjects_names:
+        return {"id": None, "name": None}
+    
     chosen_subject_name = st.selectbox("Subjects:", [s["name"] for s in subjects_names]) if not sidebar else st.sidebar.selectbox("Subjects:", [s["name"] for s in subjects_names])
     if chosen_subject_name:
         chosen_subject_id = supabase.table("subjects").select("id").eq("name", chosen_subject_name).execute().data[0]["id"]
         return {"id": chosen_subject_id, "name": chosen_subject_name}
+    return {"id": None, "name": None}
 
 # Units
 def select_unit(subject_id: str, sidebar: bool = False):
     units_names = supabase.table("units").select("name").eq("subject_id", subject_id).execute().data
+    if not units_names:
+        return {"id": None, "name": None}
     chosen_unit_name = st.selectbox("Units:", [u["name"] for u in units_names]) if not sidebar else st.sidebar.selectbox("Units:", [u["name"] for u in units_names])
-    try:
-        chosen_unit_id = supabase.table("units").select("id").eq("name", chosen_unit_name).execute().data[0]["id"]
-    except IndexError:
-        chosen_unit_id = None
-    return {"id": chosen_unit_id, "name": chosen_unit_name}
+    if chosen_unit_name:
+        try:
+            chosen_unit_id = supabase.table("units").select("id").eq("name", chosen_unit_name).execute().data[0]["id"]
+        except IndexError:
+            chosen_unit_id = None
+        return {"id": chosen_unit_id, "name": chosen_unit_name}
+    return {"id": None, "name": None}
 
 def create_unit(subject_id: str, name: str):
     return supabase.table("units").insert({"subject_id": subject_id, "name": name}).execute()
@@ -54,12 +62,16 @@ def delete_unit(unit_id: str):
 # Topics
 def select_topic(unit_id: str, sidebar: bool = False):
     topics_names = supabase.table("topics").select("name").eq("unit_id", unit_id).execute().data
+    if not topics_names:
+        return {"id": None, "name": None}
     chosen_topic_name = st.selectbox("Topics:", [t["name"] for t in topics_names]) if not sidebar else st.sidebar.selectbox("Topics:", [t["name"] for t in topics_names])
-    try: 
-        chosen_topic_id = supabase.table("topics").select("id").eq("name", chosen_topic_name).execute().data[0]["id"]
-    except IndexError:
-        chosen_topic_id = None
-    return {"id": chosen_topic_id, "name": chosen_topic_name}
+    if chosen_topic_name:
+        try: 
+            chosen_topic_id = supabase.table("topics").select("id").eq("name", chosen_topic_name).execute().data[0]["id"]
+        except IndexError:
+            chosen_topic_id = None
+        return {"id": chosen_topic_id, "name": chosen_topic_name}
+    return {"id": None, "name": None}
 
 def create_topic(unit_id: str, name: str):
     return supabase.table("topics").insert({"unit_id": unit_id, "name": name}).execute()
@@ -73,12 +85,16 @@ def delete_topic(topic_id: str):
 # Subtopics
 def select_subtopic(topic_id: str, sidebar: bool = False):
     subtopics_names = supabase.table("subtopics").select("name").eq("topic_id", topic_id).execute().data
+    if not subtopics_names:
+        return {"id": None, "name": None}
     chosen_subtopic_name = st.selectbox("Subtopics:", [s["name"] for s in subtopics_names]) if not sidebar else st.sidebar.selectbox("Subtopics:", [s["name"] for s in subtopics_names])
-    try:
-        chosen_subtopic_id = supabase.table("subtopics").select("id").eq("name", chosen_subtopic_name).execute().data[0]["id"]
-    except IndexError:                  
-        chosen_subtopic_id = None
-    return {"id": chosen_subtopic_id, "name": chosen_subtopic_name}
+    if chosen_subtopic_name:
+        try:
+            chosen_subtopic_id = supabase.table("subtopics").select("id").eq("name", chosen_subtopic_name).execute().data[0]["id"]
+        except IndexError:                  
+            chosen_subtopic_id = None
+        return {"id": chosen_subtopic_id, "name": chosen_subtopic_name}
+    return {"id": None, "name": None}
 
 def create_subtopic(topic_id: str, name: str):
     return supabase.table("subtopics").insert({"topic_id": topic_id, "name": name}).execute()
@@ -243,6 +259,10 @@ def select_menu():
 
     #Subject
     chosen_subject = select_subject()
+    if not chosen_subject:
+        st.info("Please select a subject first")
+        return
+    
     if st.button("Select Subject"):
         st.session_state["subject_sel_btn"] = True
     if st.session_state.get("subject_sel_btn"):
