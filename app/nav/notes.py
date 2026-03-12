@@ -659,4 +659,3 @@ def show_page():
     else:
         st.write(SUPABASE_URL)
         st.write(SUPABASE_KEY)
-        select_menu()
