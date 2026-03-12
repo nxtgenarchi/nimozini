@@ -640,7 +640,7 @@ def pomodoro():
 TYPES = {"Text": "text", "Header": "header", "URL": "url", "Internal Link": "internal_link", "File": "fileupload", "Canvas": "canvas", "Flashcards Session": "flashcards", "Feynman Session": "feynman", "Interleaving Session": "interleave"}
 
 def note_editor():
-    display_blocks()
+    display_blocks(st.session_state["view_notes"]["subtopic"])
     st.sidebar.divider()
     pomodoro_timer()
     st.sidebar.divider()
