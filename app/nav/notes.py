@@ -27,9 +27,9 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 # Subjects
 def select_subject(sidebar: bool = False):
     subjects_names = supabase.table("subjects").select("name").execute().data
+    st.write(subjects_names)
     if not subjects_names:
         return {"id": None, "name": None}
-    st.write(subjects_names)
     chosen_subject_name = st.selectbox("Subjects:", [s["name"] for s in subjects_names]) if not sidebar else st.sidebar.selectbox("Subjects:", [s["name"] for s in subjects_names])
     if chosen_subject_name:
         chosen_subject_id = supabase.table("subjects").select("id").eq("name", chosen_subject_name).execute().data[0]["id"]
