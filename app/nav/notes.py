@@ -657,5 +657,6 @@ def show_page():
     if st.session_state["view_notes"]:
         note_editor()
     else:
-
+        st.write(SUPABASE_URL)
+        st.write(SUPABASE_KEY)
         select_menu()
