@@ -639,6 +639,7 @@ def pomodoro(p):
             """
             components.html(study_notif, height=150)
         lap += 1
+        st.write(lap)
 
 TYPES = {"Text": "text", "Header": "header", "URL": "url", "Internal Link": "internal_link", "File": "fileupload", "Canvas": "canvas", "Flashcards Session": "flashcards", "Feynman Session": "feynman", "Interleaving Session": "interleave"}
 
