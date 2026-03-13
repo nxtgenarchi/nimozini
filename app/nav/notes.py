@@ -595,7 +595,7 @@ def pomodoro(p):
     break_time = st.sidebar.slider("Break Time", 1, 30, 5, step=1)
     if st.sidebar.button("Start/Restart Timer", key="start_pomodoro"):
         lap = 1
-        while not st.sidebar.button("Kill Timer")
+        while not st.sidebar.button("Kill Timer"):
             for i in range(study_time * 60):
                 time.sleep(1)
                 minutes = (study_time * 60 - i) // 60
