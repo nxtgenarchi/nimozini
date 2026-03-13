@@ -653,7 +653,7 @@ def note_editor():
         else:
             order = int(chosen_placement.split(" ")[2])
         content = json.dumps(eval(TYPES[chosen_type])())
-        if st.sidebar.checkbox("Confirm Block Addition", key="add_block"):
+        if st.sidebar.checkbox("Confirm Block Addition"):
             st.session_state["add_block"] = True
         if st.session_state.get("add_block"):
             new_added_block = create_block(st.session_state["view_notes"]["subtopic"], st.session_state["view_notes"]["subject"], TYPES[chosen_type], content, order, datetime.now().isoformat())
