@@ -602,7 +602,8 @@ def pomodoro():
                 minutes = (study_time * 60 - i) // 60
                 seconds = (study_time * 60 - i) % 60
                 st.session_state["timer"] = f"**Study Timer:** {minutes:02}:{seconds:02}"
-                st.sidebar.header(st.session_state["timer"])
+                with st.sidebar.empty():
+                    st.sidebar.header(st.session_state["timer"])
             break_notif = f"""
             <script>
             if (Notification.permission === "granted") {{
@@ -621,7 +622,9 @@ def pomodoro():
                 time.sleep(1)
                 minutes = (break_time * 60 - i) // 60
                 seconds = (break_time * 60 - i) % 60
-                st.sidebar.header(f"**Break Timer:** {minutes:02}:{seconds:02}")
+                st.session_state["timer"] = f"**Break Timer:** {minutes:02}:{seconds:02}"
+                with st.sidebar.empty():
+                    st.sidebar.header(st.session_state["timer"])
             study_notif = f"""
             <script>
             if (Notification.permission === "granted") {{
