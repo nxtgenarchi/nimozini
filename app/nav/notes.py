@@ -653,7 +653,7 @@ def note_editor():
         else:
             order = int(chosen_placement.split(" ")[2])
         content = json.dumps(eval(TYPES[chosen_type])())
-        if st.sidebar.checkbox("Confirm Block Addition"):
+        if st.sidebar.button("Confirm Block Addition"):
             st.session_state["add_block"] = True
         if st.session_state.get("add_block"):
             new_added_block = create_block(st.session_state["view_notes"]["subtopic"], st.session_state["view_notes"]["subject"], TYPES[chosen_type], content, order, datetime.datetime.now().isoformat())
@@ -663,7 +663,7 @@ def note_editor():
             st.rerun()
     chosen_block_delete = st.sidebar.selectbox("Delete Block", ["-"] + [f"Block {i+1}" for i in range(len(get_blocks(st.session_state["view_notes"]["subtopic"])) + 1)], key="chosen_block_delete")
     if chosen_block_delete and chosen_block_delete != "-":
-        if st.sidebar.checkbox("Confirm Deletion", key="delete_block"):
+        if st.sidebar.button("Confirm Deletion"):
             st.session_state["delete_block"] = True
         if st.session_state.get("delete_block"):
             block_id = get_blocks(st.session_state["view_notes"]["subtopic"])[int(chosen_block_delete.split(" ")[1]) - 1]["id"]
