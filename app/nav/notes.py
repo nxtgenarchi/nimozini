@@ -591,11 +591,12 @@ def interleave():
 
 def pomodoro(p):
     st.sidebar.divider()
-    study_time = st.sidebar.slider("Work Time", 1, 90, 25, step=5)
+    study_time = st.sidebar.slider("Study Time", 1, 90, 25, step=5)
     break_time = st.sidebar.slider("Break Time", 1, 30, 5, step=1)
     if st.sidebar.button("Start/Restart Timer", key="start_pomodoro"):
+        lap = 1
         while True:
-            if st.sidebar.button("Kill Timer", key=f"kill_pomodoro"):
+            if st.sidebar.button("Kill Timer", key=f"kill_pomodoro_{lap}"):
                 break
             for i in range(study_time * 60):
                 time.sleep(1)
@@ -637,13 +638,14 @@ def pomodoro(p):
             </script>
             """
             components.html(study_notif, height=150)
+        lap += 1
 
 TYPES = {"Text": "text", "Header": "header", "URL": "url", "Internal Link": "internal_link", "File": "fileupload", "Canvas": "canvas", "Flashcards Session": "flashcards", "Feynman Session": "feynman", "Interleaving Session": "interleave"}
 
 def note_editor():
     display_blocks(st.session_state["view_notes"]["subtopic"])
-    placeholder = st.sidebar.empty()
     st.sidebar.divider()
+    placeholder = st.sidebar.empty()
     pomodoro(placeholder)
     st.sidebar.divider()
     st.sidebar.title("Notes Toolbar")
