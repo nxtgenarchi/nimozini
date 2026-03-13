@@ -589,7 +589,7 @@ def interleave():
         st.sidebar.write("Session over.")
         return {"method": st.session_state["method"], "add_ons": st.session_state["add_ons"], "interleaved_list": st.session_state["interleaved_list"]}
 
-def pomodoro():
+def pomodoro(p):
     st.sidebar.divider()
     study_time = st.sidebar.slider("Work Time", 1, 90, 25, step=5)
     break_time = st.sidebar.slider("Break Time", 1, 30, 5, step=1)
@@ -602,8 +602,7 @@ def pomodoro():
                 minutes = (study_time * 60 - i) // 60
                 seconds = (study_time * 60 - i) % 60
                 st.session_state["timer"] = f"**Study Timer:** {minutes:02}:{seconds:02}"
-                with st.sidebar.empty():
-                    st.sidebar.header(st.session_state["timer"])
+                p.header(st.session_state["timer"])
             break_notif = f"""
             <script>
             if (Notification.permission === "granted") {{
@@ -623,8 +622,7 @@ def pomodoro():
                 minutes = (break_time * 60 - i) // 60
                 seconds = (break_time * 60 - i) % 60
                 st.session_state["timer"] = f"**Break Timer:** {minutes:02}:{seconds:02}"
-                with st.sidebar.empty():
-                    st.sidebar.header(st.session_state["timer"])
+                p.header(st.session_state["timer"])
             study_notif = f"""
             <script>
             if (Notification.permission === "granted") {{
@@ -644,8 +642,9 @@ TYPES = {"Text": "text", "Header": "header", "URL": "url", "Internal Link": "int
 
 def note_editor():
     display_blocks(st.session_state["view_notes"]["subtopic"])
+    placeholder = st.sidebar.empty()
     st.sidebar.divider()
-    pomodoro()
+    pomodoro(placeholder)
     st.sidebar.divider()
     st.sidebar.title("Notes Toolbar")
     chosen_type = st.sidebar.selectbox("Add Block", list(["-"] + list(TYPES.keys())), key="chosen_type")
