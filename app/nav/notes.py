@@ -6,7 +6,7 @@ import os
 import tempfile
 import random
 import time
-import datetime
+from datetime import datetime
 import json
 import pandas as pd
 from PIL import Image
