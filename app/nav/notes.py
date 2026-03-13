@@ -205,7 +205,7 @@ def parse_apkg(apkg_path):
         conn.close()
         return cards
 
-def _serialize_block_content(btype: str, raw):
+def serialize_block_content(btype: str, raw):
     if raw is None:
         return None
     match btype:
@@ -595,7 +595,7 @@ def pomodoro():
     break_time = st.sidebar.slider("Break Time", 1, 30, 5, step=1)
     if st.sidebar.button("Start/Restart Timer", key="start_pomodoro"):
         while True:
-            if st.sidebar.button("Kill Timer", key=f"kill_pomodoro_{laps}"):
+            if st.sidebar.button("Kill Timer", key=f"kill_pomodoro"):
                 break
             for i in range(study_time * 60):
                 time.sleep(1)
