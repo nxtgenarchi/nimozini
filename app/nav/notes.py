@@ -6,7 +6,7 @@ import os
 import tempfile
 import random
 import time
-from datetime import datetime
+import datetime
 import json
 import pandas as pd
 from PIL import Image
@@ -656,7 +656,7 @@ def note_editor():
         if st.sidebar.checkbox("Confirm Block Addition"):
             st.session_state["add_block"] = True
         if st.session_state.get("add_block"):
-            new_added_block = create_block(st.session_state["view_notes"]["subtopic"], st.session_state["view_notes"]["subject"], TYPES[chosen_type], content, order, datetime.now().isoformat())
+            new_added_block = create_block(st.session_state["view_notes"]["subtopic"], st.session_state["view_notes"]["subject"], TYPES[chosen_type], content, order, datetime.datetime.now().isoformat())
             update_blocks_order(st.session_state["view_notes"]["subtopic"], new_added_block[0]["id"], new_added_block[0]["order_index"])
             st.sidebar.success("Block added!")
             st.session_state["add_block"] = False
