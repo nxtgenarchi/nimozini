@@ -529,7 +529,7 @@ def feynman():
                 st.session_state[f"feynman_lap_{st.session_state['lap']}"] = True
             if st.session_state.get(f"feynman_lap_{st.session_state['lap']}"):
                 st.sidebar.write(f"lap {st.session_state['lap']}")
-                gaps_num = st.sidebar.number_input("Number of gaps to fill", min_value=0, max_value=concepts, value=concepts, key=f"feynman_gaps_num_{st.session_state['lap']}")
+                gaps_num = st.sidebar.number_input("Number of gaps to fill", min_value=0, max_value=st.session_state["concepts"], value=st.session_state["concepts"], key=f"feynman_gaps_num_{st.session_state['lap']}")
                 st.session_state["gaps_num_list"].append(gaps_num)
                 gaps_summary = st.sidebar.text_area("Gaps summary", key=f"feynman_gaps_summary_{st.session_state['lap']}")
                 if gaps_num >= 0 and gaps_summary.strip():
