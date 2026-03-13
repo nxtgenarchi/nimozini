@@ -6,7 +6,6 @@ import os
 import tempfile
 import random
 import time
-import threading
 import datetime
 import json
 import pandas as pd
@@ -590,71 +589,56 @@ def interleave():
         st.sidebar.write("Session over.")
         return {"method": st.session_state["method"], "add_ons": st.session_state["add_ons"], "interleaved_list": st.session_state["interleaved_list"]}
 
-def run_timer(study_time, break_time):
-    lap = 1
-    while st.session_state.get("timer_running", False):
-        if st.session_state.get("kill_timer", False):
-            break
-        for i in range(study_time * 60):
-            if not st.session_state.get("timer_running", False) or st.session_state.get("kill_timer", False):
-                return
-            time.sleep(1)
-            minutes = (study_time * 60 - i) // 60
-            seconds = (study_time * 60 - i) % 60
-            st.session_state["timer"] = f"**Study Timer:** {minutes:02}:{seconds:02}"
-        break_notif = f"""
-        <script>
-        if (Notification.permission === "granted") {{
-            new Notification("Break!");
-        }} else if (Notification.permission !== "denied") {{
-            Notification.requestPermission().then(permission => {{
-                if (permission === "granted") {{
-                    new Notification("Break!");
-                }}
-            }});
-        }}
-        </script>
-        """
-        # Note: components.html can't be called from thread, so skip or handle differently
-        for i in range(break_time * 60):
-            if not st.session_state.get("timer_running", False) or st.session_state.get("kill_timer", False):
-                return
-            time.sleep(1)
-            minutes = (break_time * 60 - i) // 60
-            seconds = (break_time * 60 - i) % 60
-            st.session_state["timer"] = f"**Break Timer:** {minutes:02}:{seconds:02}"
-        study_notif = f"""
-        <script>
-        if (Notification.permission === "granted") {{
-            new Notification("Back to Studying!");
-        }} else if (Notification.permission !== "denied") {{
-            Notification.requestPermission().then(permission => {{
-                if (permission === "granted") {{
-                    new Notification("Back to Studying!");
-                }}
-            }});
-        }}
-        </script>
-        """
-        lap += 1
-
 def pomodoro(p):
     st.sidebar.divider()
     study_time = st.sidebar.slider("Study Time", 1, 90, 25, step=5)
     break_time = st.sidebar.slider("Break Time", 1, 30, 5, step=1)
-    p.header(st.session_state.get("timer", ""))
     if st.sidebar.button("Start/Restart Timer", key="start_pomodoro"):
-        st.session_state["timer_running"] = True
-        st.session_state["kill_timer"] = False
-        if "timer_thread" in st.session_state and st.session_state["timer_thread"].is_alive():
-            st.session_state["timer_thread"].join()
-        st.session_state["timer_thread"] = threading.Thread(target=run_timer, args=(study_time, break_time))
-        st.session_state["timer_thread"].start()
-    if st.sidebar.button("Kill Timer", key="kill_pomodoro"):
-        st.session_state["timer_running"] = False
-        st.session_state["kill_timer"] = True
-        if "timer_thread" in st.session_state:
-            st.session_state["timer_thread"].join()
+        lap = 1
+        while True:
+            if st.sidebar.button("Kill Timer", key=f"kill_pomodoro_{lap}"):
+                break
+            for i in range(study_time * 60):
+                time.sleep(1)
+                minutes = (study_time * 60 - i) // 60
+                seconds = (study_time * 60 - i) % 60
+                st.session_state["timer"] = f"**Study Timer:** {minutes:02}:{seconds:02}"
+                p.header(st.session_state["timer"])
+            break_notif = f"""
+            <script>
+            if (Notification.permission === "granted") {{
+                new Notification("Break!");
+            }} else if (Notification.permission !== "denied") {{
+                Notification.requestPermission().then(permission => {{
+                    if (permission === "granted") {{
+                        new Notification("Break!");
+                    }}
+                }});
+            }}
+            </script>
+            """
+            components.html(break_notif, height=150)
+            for i in range(break_time * 60):
+                time.sleep(1)
+                minutes = (break_time * 60 - i) // 60
+                seconds = (break_time * 60 - i) % 60
+                st.session_state["timer"] = f"**Break Timer:** {minutes:02}:{seconds:02}"
+                p.header(st.session_state["timer"])
+            study_notif = f"""
+            <script>
+            if (Notification.permission === "granted") {{
+                new Notification("Back to Studying!");
+            }} else if (Notification.permission !== "denied") {{
+                Notification.requestPermission().then(permission => {{
+                    if (permission === "granted") {{
+                        new Notification("Back to Studying!");
+                    }}
+                }});
+            }}
+            </script>
+            """
+            components.html(study_notif, height=150)
+            lap += 1
         
 
 TYPES = {"Text": "text", "Header": "header", "URL": "url", "Internal Link": "internal_link", "File": "fileupload", "Canvas": "canvas", "Flashcards Session": "flashcards", "Feynman Session": "feynman", "Interleaving Session": "interleave"}
