@@ -427,7 +427,7 @@ def select_menu():
                                 return
 
 def text():
-    return st.text_area("", height=100)
+    return st.sidebar.text_area("", height=100)
 
 def header():
     st.sidebar.divider()
@@ -650,7 +650,6 @@ def note_editor():
             create_block(st.session_state["view_notes"]["subtopic"], st.session_state["view_notes"]["subject"], TYPES[chosen_type], content, datetime.datetime.now().isoformat())
             st.sidebar.success("Block added!")
             st.session_state["add_block"] = False
-            chosen_type = "-"
             st.rerun()
 
 def show_page():
