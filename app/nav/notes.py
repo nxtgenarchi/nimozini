@@ -640,7 +640,7 @@ def pomodoro(p):
             components.html(study_notif, height=150)
             lap += 1
 
-def timer_layout()
+def timer_layout():
     st.sidebar.divider()
     placeholder = st.sidebar.empty()
     pomodoro(placeholder)
