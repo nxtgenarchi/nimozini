@@ -650,6 +650,7 @@ def note_editor():
             create_block(st.session_state["view_notes"]["subtopic"], st.session_state["view_notes"]["subject"], TYPES[chosen_type], content, datetime.datetime.now().isoformat())
             st.sidebar.success("Block added!")
             st.session_state["add_block"] = False
+            chosen_type = "-"
             st.rerun()
 
 def show_page():
