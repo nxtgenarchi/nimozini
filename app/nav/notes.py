@@ -639,16 +639,18 @@ def pomodoro(p):
             """
             components.html(study_notif, height=150)
             lap += 1
-        
+
+def timer_layout()
+    st.sidebar.divider()
+    placeholder = st.sidebar.empty()
+    pomodoro(placeholder)
+    st.sidebar.divider()
+    
 
 TYPES = {"Text": "text", "Header": "header", "URL": "url", "Internal Link": "internal_link", "File": "fileupload", "Canvas": "canvas", "Flashcards Session": "flashcards", "Feynman Session": "feynman", "Interleaving Session": "interleave"}
 
 def note_editor():
     display_blocks(st.session_state["view_notes"]["subtopic"])
-    st.sidebar.divider()
-    placeholder = st.sidebar.empty()
-    pomodoro(placeholder)
-    st.sidebar.divider()
     st.sidebar.title("Notes Toolbar")
     chosen_type = st.sidebar.selectbox("Add Block", list(["-"] + list(TYPES.keys())), key="chosen_type")
     if chosen_type and chosen_type != "-":
@@ -681,6 +683,7 @@ def show_page():
     if "view_notes" not in st.session_state:
         st.session_state["view_notes"] = None
     if st.session_state["view_notes"]:
+        timer_layout()
         note_editor()
     else:
         select_menu()
