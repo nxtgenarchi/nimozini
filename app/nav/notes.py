@@ -110,30 +110,19 @@ def get_blocks(subtopic_id: str):
         supabase.table("noteblocks")
         .select("*")
         .eq("subtopic_id", subtopic_id)
-        .order("order_index")
+        .order("id", desc=False)
         .execute()
         .data
     )
 
-def create_block(subtopic_id: str, subject: str, btype: str, content, order_index: int, created_at: datetime):
+def create_block(subtopic_id: str, subject: str, btype: str, content, created_at: datetime):
     return supabase.table("noteblocks").insert({
         "subtopic_id": subtopic_id,
         "subject": subject,
         "btype": btype,
         "content": content,
-        "order_index": order_index,
         "created_at": created_at
     }).execute().data
-
-def update_blocks_order(subtopic_id: str, newadded_block_id: str, newadded_block_order_index: int):
-    return supabase.rpc("increment_order_index", {
-    "subtopic_id": subtopic_id,
-    "new_block_id": newadded_block_id,
-    "min_order": newadded_block_order_index
-}).execute()
-
-def delete_block(block_id: str):
-    return supabase.table("noteblocks").delete().eq("id", block_id).execute()
 
 def display_blocks(subtopic_id: str):
     blocks = get_blocks(subtopic_id)
@@ -654,29 +643,13 @@ def note_editor():
     st.sidebar.title("Notes Toolbar")
     chosen_type = st.sidebar.selectbox("Add Block", list(["-"] + list(TYPES.keys())), key="chosen_type")
     if chosen_type and chosen_type != "-":
-        chosen_placement = st.sidebar.selectbox("Choose Placement", ["At End"] + [f"Before Block {i+1}" for i in range(len(get_blocks(st.session_state["view_notes"]["subtopic"])) + 1)], key="placement")
-        if chosen_placement == "At End":
-            order = len(get_blocks(st.session_state["view_notes"]["subtopic"])) + 1
-        else:
-            order = int(chosen_placement.split(" ")[2])
         content = json.dumps(eval(TYPES[chosen_type])())
         if st.sidebar.button("Confirm Block Addition"):
             st.session_state["add_block"] = True
         if st.session_state.get("add_block"):
-            new_added_block = create_block(st.session_state["view_notes"]["subtopic"], st.session_state["view_notes"]["subject"], TYPES[chosen_type], content, order, datetime.datetime.now().isoformat())
-            update_blocks_order(st.session_state["view_notes"]["subtopic"], new_added_block[0]["id"], new_added_block[0]["order_index"])
+            create_block(st.session_state["view_notes"]["subtopic"], st.session_state["view_notes"]["subject"], TYPES[chosen_type], content, datetime.datetime.now().isoformat())
             st.sidebar.success("Block added!")
             st.session_state["add_block"] = False
-            st.rerun()
-    chosen_block_delete = st.sidebar.selectbox("Delete Block", ["-"] + [f"Block {i+1}" for i in range(len(get_blocks(st.session_state["view_notes"]["subtopic"])) + 1)], key="chosen_block_delete")
-    if chosen_block_delete and chosen_block_delete != "-":
-        if st.sidebar.button("Confirm Deletion"):
-            st.session_state["delete_block"] = True
-        if st.session_state.get("delete_block"):
-            block_id = get_blocks(st.session_state["view_notes"]["subtopic"])[int(chosen_block_delete.split(" ")[1]) - 1]["id"]
-            delete_block(block_id)
-            st.sidebar.warning("Block deleted!")
-            st.session_state["delete_block"] = False
             st.rerun()
 
 def show_page():
