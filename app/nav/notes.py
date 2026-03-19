@@ -656,7 +656,7 @@ def show_page():
     if "view_notes" not in st.session_state:
         st.session_state["view_notes"] = None
     if st.session_state["view_notes"]:
-        note_editor()
         timer_layout()
+        note_editor()
     else:
         select_menu()
