@@ -11,7 +11,6 @@ import json
 import pandas as pd
 from PIL import Image
 from io import BytesIO
-import ast
 import base64
 import numpy as np
 import streamlit as st
@@ -145,41 +144,17 @@ def display_blocks(subtopic_id: str):
                         st.session_state["view_notes"]["subtopic"] = linked_subtopic_id
                         st.rerun()
                 case "fileupload":
-                    content = block["content"]
-                    if isinstance(content, str):
-                        try:
-                            content = json.loads(content)
-                        except Exception:
-                            try:
-                                content = ast.literal_eval(content)
-                            except Exception:
-                                pass
-
-                    if isinstance(content, dict) and content.get("type") == "file":
-                        name = content.get("name", "uploaded file")
-                        url = content.get("url")
-                        if url:
-                            st.markdown(f"[{name}]({url})")
-                        else:
-                            st.write(f"Uploaded File: {name}")
-                    else:
-                        st.write(f"Uploaded File: {content}")
-
+                    match block["content"]:
+                        case "image":
+                            st.image(block["content"], caption=block["content"].name)
+                        case "video":
+                            st.video(block["content"])
+                        case "audio":
+                            st.audio(block["content"])
+                        case _:
+                            st.write(f"Uploaded File: {block['content'].name}")
                 case "canvas":
-                    content = block["content"]
-                    if isinstance(content, str):
-                        try:
-                            content = json.loads(content)
-                        except Exception:
-                            try:
-                                content = ast.literal_eval(content)
-                            except Exception:
-                                pass
-
-                    if isinstance(content, dict) and content.get("type") in ("image", "file") and content.get("url"):
-                        st.image(content["url"])
-                    else:
-                        st.image(content)
+                    st.image(block["content"])
                 case "flashcards":
                     st.expander("Flashcards Session:").write(block["content"])
                 case "feynman":
@@ -668,7 +643,7 @@ def note_editor():
     st.sidebar.title("Notes Toolbar")
     chosen_type = st.sidebar.selectbox("Add Block", list(["-"] + list(TYPES.keys())), key="chosen_type")
     if chosen_type and chosen_type != "-":
-        content = serialize(chosen_type, eval(TYPES[chosen_type])())
+        content = serialize(chosen_type,eval(TYPES[chosen_type])())
         if st.sidebar.button("Confirm Block Addition"):
             st.session_state["add_block"] = True
         if st.session_state.get("add_block"):
