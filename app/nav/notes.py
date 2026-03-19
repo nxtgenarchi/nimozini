@@ -144,15 +144,12 @@ def display_blocks(subtopic_id: str):
                         st.session_state["view_notes"]["subtopic"] = linked_subtopic_id
                         st.rerun()
                 case "fileupload":
-                    match block["content"].type.split("/")[0]:
-                        case "image":
-                            st.image(block["content"], caption=block["content"].name)
-                        case "video":
-                            st.video(block["content"])
-                        case "audio":
-                            st.audio(block["content"])
-                        case _:
-                            st.write(f"Uploaded File: {block['content'].name}")
+                    content = block["content"]
+                    if isinstance(content, dict) and content.get("type") == "file":
+                        # Display link to the file
+                        st.markdown(f"[{content['name']}]({content['url']})")
+                    else:
+                        st.write(f"Uploaded File: {content}")
                 case "canvas":
                     st.image(block["content"])
                 case "flashcards":
