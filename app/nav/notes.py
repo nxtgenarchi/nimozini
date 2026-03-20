@@ -486,7 +486,7 @@ def canvas():
     )
 
     if canvas_result.image_data is not None:
-        return canvas_result.image_data
+        return str(canvas_result.image_data)
     #if canvas_result.json_data is not None:
         #objects = pd.json_normalize(canvas_result.json_data["objects"])
         #for col in objects.select_dtypes(include=['object']).columns:
