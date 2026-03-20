@@ -152,7 +152,7 @@ def display_blocks(subtopic_id: str):
                         case "audio":
                             st.audio(block["content"])
                         case _:
-                            st.write(f"Uploaded File: {block['content'].name}")
+                            st.write(f"Uploaded File: {block['content']}")
                 case "canvas":
                     st.image(block["content"])
                 case "flashcards":
