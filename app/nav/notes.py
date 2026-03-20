@@ -451,7 +451,7 @@ def internal_link():
 
 def fileupload():
     st.sidebar.divider()
-    return st.sidebar.file_uploader("Upload a file", type=["pdf", "doc", "docx", "odt", "txt", "md", "ppt", "pptx", "odp", "xls", "xlsx", "ods", "png", "jpg", "jpeg", "gif", "mp3", "wav", "mp4", "mov", "avi", "mkv", "zip", "rar", "7z"])
+    return str(st.sidebar.file_uploader("Upload a file", type=["pdf", "doc", "docx", "odt", "txt", "md", "ppt", "pptx", "odp", "xls", "xlsx", "ods", "png", "jpg", "jpeg", "gif", "mp3", "wav", "mp4", "mov", "avi", "mkv", "zip", "rar", "7z"]))
 
 def canvas():
     st.sidebar.divider()
