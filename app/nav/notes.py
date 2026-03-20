@@ -144,17 +144,27 @@ def display_blocks(subtopic_id: str):
                         st.session_state["view_notes"]["subtopic"] = linked_subtopic_id
                         st.rerun()
                 case "fileupload":
-                    match block["content"]:
-                        case "image":
-                            st.image(block["content"], caption=block["content"].name)
-                        case "video":
-                            st.video(block["content"])
-                        case "audio":
-                            st.audio(block["content"])
-                        case _:
-                            st.write(f"Uploaded File: {block['content']}")
+                    if isinstance(block["content"], dict) and "url" in block["content"]:
+                        file_info = block["content"]
+                        fname = file_info.get("name", "file")
+                        url = file_info["url"]
+                        # Determine media type from file extension
+                        fname_lower = fname.lower()
+                        if any(fname_lower.endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp']):
+                            st.image(url, caption=fname)
+                        elif any(fname_lower.endswith(ext) for ext in ['.mp4', '.mov', '.avi', '.mkv', '.webm']):
+                            st.video(url)
+                        elif any(fname_lower.endswith(ext) for ext in ['.mp3', '.wav', '.ogg', '.flac', '.m4a']):
+                            st.audio(url)
+                        else:
+                            st.markdown(f"[📥 Download: {fname}]({url})")
+                    else:
+                        st.write(f"File: {block['content']}")
                 case "canvas":
-                    st.image(block["content"])
+                    if isinstance(block["content"], dict) and "url" in block["content"]:
+                        st.image(block["content"]["url"], caption="Canvas Drawing")
+                    else:
+                        st.write(f"Canvas: {block['content']}")
                 case "flashcards":
                     st.expander("Flashcards Session:").write(block["content"])
                 case "feynman":
@@ -197,26 +207,31 @@ def parse_apkg(apkg_path):
 def serialize(btype: str, raw):
     if raw is None:
         return None
+def serialize(btype: str, raw):
+    if raw is None:
+        return None
     match btype:
         case "fileupload":
             try:
-                data = raw.getbuffer() if hasattr(raw, "getbuffer") else raw.read()
-                fname = getattr(raw, "name", f"upload_{int(time.time())}")
+                # raw is a Streamlit UploadedFile object
+                data = raw.read()  # Get file bytes
+                fname = raw.name  # Get the filename
                 path = f"uploads/{int(time.time())}_{fname}"
                 supabase.storage.from_("uploads").upload(path, data)
                 url = supabase.storage.from_("uploads").get_public_url(path)["publicURL"]
                 return {"type": "file", "name": fname, "url": url}
-            except Exception:
-                return {"type": "file", "name": getattr(raw, "name", str(raw))}
+            except Exception as e:
+                # Fallback: return filename without uploading
+                fname = getattr(raw, "name", f"upload_{int(time.time())}")
+                return {"type": "file", "name": fname, "error": str(e)}
             
         case "canvas":
             try:
-                from PIL import Image
+                # raw should be a numpy array from canvas_result.image_data
                 arr = raw
-                if isinstance(arr, np.ndarray):
-                    img = Image.fromarray(arr.astype("uint8"))
-                else:
-                    img = arr  # assume PIL Image
+                if not isinstance(arr, np.ndarray):
+                    raise ValueError("Canvas data must be a numpy array")
+                img = Image.fromarray(arr.astype("uint8"))
                 buf = BytesIO()
                 img.save(buf, format="PNG")
                 data = buf.getvalue()
@@ -224,8 +239,8 @@ def serialize(btype: str, raw):
                 supabase.storage.from_("uploads").upload(path, data)
                 url = supabase.storage.from_("uploads").get_public_url(path)["publicURL"]
                 return {"type": "image", "url": url}
-            except Exception:
-                return {"type": "image", "fallback": str(raw)}
+            except Exception as e:
+                return {"type": "image", "error": str(e)}
 
         case "flashcards" | "feynman" | "interleave":
             try:
@@ -451,7 +466,7 @@ def internal_link():
 
 def fileupload():
     st.sidebar.divider()
-    return str(st.sidebar.file_uploader("Upload a file", type=["pdf", "doc", "docx", "odt", "txt", "md", "ppt", "pptx", "odp", "xls", "xlsx", "ods", "png", "jpg", "jpeg", "gif", "mp3", "wav", "mp4", "mov", "avi", "mkv", "zip", "rar", "7z"]))
+    return st.sidebar.file_uploader("Upload a file", type=["pdf", "doc", "docx", "odt", "txt", "md", "ppt", "pptx", "odp", "xls", "xlsx", "ods", "png", "jpg", "jpeg", "gif", "mp3", "wav", "mp4", "mov", "avi", "mkv", "zip", "rar", "7z"])
 
 def canvas():
     st.sidebar.divider()
@@ -486,7 +501,7 @@ def canvas():
     )
 
     if canvas_result.image_data is not None:
-        return str(canvas_result.image_data)
+        return canvas_result.image_data  # Return numpy array directly
     #if canvas_result.json_data is not None:
         #objects = pd.json_normalize(canvas_result.json_data["objects"])
         #for col in objects.select_dtypes(include=['object']).columns:
@@ -643,7 +658,7 @@ def note_editor():
     st.sidebar.title("Notes Toolbar")
     chosen_type = st.sidebar.selectbox("Add Block", list(["-"] + list(TYPES.keys())), key="chosen_type")
     if chosen_type and chosen_type != "-":
-        content = chosen_type,eval(TYPES[chosen_type])()
+        content = serialize(chosen_type, eval(TYPES[chosen_type])())
         if st.sidebar.button("Confirm Block Addition"):
             st.session_state["add_block"] = True
         if st.session_state.get("add_block"):
