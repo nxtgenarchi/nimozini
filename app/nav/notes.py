@@ -214,8 +214,8 @@ def serialize(btype: str, raw):
                 data = raw.read()  # Get file bytes
                 fname = raw.name  # Get the filename
                 path = f"uploads/{int(time.time())}_{fname}"
-                supabase.storage.from_("uploads").upload(path, data)
-                url = supabase.storage.from_("uploads").get_public_url(path)["publicURL"]
+                supabase.storage.from_("public").upload(path, data)
+                url = supabase.storage.from_("public").get_public_url(path)["publicURL"]
                 return {"type": "file", "name": fname, "url": url}
             except Exception as e:
                 # Fallback: return filename without uploading
@@ -233,8 +233,8 @@ def serialize(btype: str, raw):
                 img.save(buf, format="PNG")
                 data = buf.getvalue()
                 path = f"uploads/canvas_{int(time.time())}.png"
-                supabase.storage.from_("uploads").upload(path, data)
-                url = supabase.storage.from_("uploads").get_public_url(path)["publicURL"]
+                supabase.storage.from_("public").upload(path, data)
+                url = supabase.storage.from_("public").get_public_url(path)["publicURL"]
                 return {"type": "image", "url": url}
             except Exception as e:
                 return {"type": "image", "error": str(e)}
