@@ -656,6 +656,7 @@ def note_editor():
     chosen_type = st.sidebar.selectbox("Add Block", list(["-"] + list(TYPES.keys())), key="chosen_type")
     if chosen_type and chosen_type != "-":
         content = serialize(chosen_type, eval(TYPES[chosen_type])())
+        st.write(chosen_type)
         if st.sidebar.button("Confirm Block Addition"):
             st.session_state["add_block"] = True
         if st.session_state.get("add_block"):
