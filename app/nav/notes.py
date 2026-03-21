@@ -207,11 +207,8 @@ def parse_apkg(apkg_path):
 def serialize(btype: str, raw):
     if raw is None:
         return None
-def serialize(btype: str, raw):
-    if raw is None:
-        return None
     match btype:
-        case "fileupload":
+        case "File":
             try:
                 # raw is a Streamlit UploadedFile object
                 data = raw.read()  # Get file bytes
@@ -225,7 +222,7 @@ def serialize(btype: str, raw):
                 fname = getattr(raw, "name", f"upload_{int(time.time())}")
                 return {"type": "file", "name": fname, "error": str(e)}
             
-        case "canvas":
+        case "Canvas":
             try:
                 # raw should be a numpy array from canvas_result.image_data
                 arr = raw
@@ -242,7 +239,7 @@ def serialize(btype: str, raw):
             except Exception as e:
                 return {"type": "image", "error": str(e)}
 
-        case "flashcards" | "feynman" | "interleave":
+        case "Flashcards Session" | "Feynman Session" | "Interleaving Session":
             try:
                 json.dumps(raw)  # test serializability
                 return raw
