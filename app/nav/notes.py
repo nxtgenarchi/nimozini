@@ -128,24 +128,29 @@ def display_blocks(subtopic_id: str):
     blocks = get_blocks(subtopic_id)
     for block in blocks:
         with st.container():
+            content = block["content"]
+            if isinstance(content, dict):
+                content_value = content.get("data", content.get("content", content))
+            else:
+                content_value = content  # fallback for old data
             match block["btype"]:
                 case "text":
-                    text = st.text_area("", value=block["content"], key=f"block_{block['id']}", height=100)
+                    text = st.text_area("", value=str(content_value), key=f"block_{block['id']}", height=100)
                     if text:
-                        supabase.table("noteblocks").update({"content": text}).eq("id", block["id"]).execute()
+                        supabase.table("noteblocks").update({"content": {"type": "text", "data": text}}).eq("id", block["id"]).execute()
                 case "header":
-                    st.subheader(block["content"])
+                    st.subheader(str(content_value))
                 case "url":
-                    st.markdown(block["content"], unsafe_allow_html=True)
+                    st.markdown(str(content_value), unsafe_allow_html=True)
                 case "internal_link":
-                    linked_subtopic_id = block["content"]
+                    linked_subtopic_id = str(content_value)
                     linked_subtopic_name = supabase.table("subtopics").select("name").eq("id", linked_subtopic_id).execute().data[0]["name"]
                     if st.button(f"Go to {linked_subtopic_name}", key=f"link_{block['id']}"):
                         st.session_state["view_notes"]["subtopic"] = linked_subtopic_id
                         st.rerun()
                 case "fileupload":
-                    if isinstance(block["content"], dict) and "url" in block["content"]:
-                        file_info = block["content"]
+                    if isinstance(content, dict) and "url" in content:
+                        file_info = content
                         fname = file_info.get("name", "file")
                         url = file_info["url"]
                         # Determine media type from file extension
@@ -159,18 +164,18 @@ def display_blocks(subtopic_id: str):
                         else:
                             st.markdown(f"[📥 Download: {fname}]({url})")
                     else:
-                        st.write(f"File: {block['content']}")
+                        st.write(f"File: {content}")
                 case "canvas":
-                    if isinstance(block["content"], dict) and "url" in block["content"]:
-                        st.image(block["content"]["url"], caption="Canvas Drawing")
+                    if isinstance(content, dict) and "url" in content:
+                        st.image(content["url"], caption="Canvas Drawing")
                     else:
-                        st.write(f"Canvas: {block['content']}")
+                        st.write(f"Canvas: {content}")
                 case "flashcards":
-                    st.expander("Flashcards Session:").write(block["content"])
+                    st.expander("Flashcards Session:").write(content)
                 case "feynman":
-                    st.expander("Feynman Session:").write(block["content"])
+                    st.expander("Feynman Session:").write(content)
                 case "interleave":
-                    st.expander("Interleaving Session:").write(block["content"])
+                    st.expander("Interleaving Session:").write(content)
 
 #Anki .apkg parser  
 def parse_apkg(apkg_path):
@@ -215,7 +220,11 @@ def serialize(btype: str, raw):
                 fname = raw.name  # Get the filename
                 path = f"uploads/{int(time.time())}_{fname}"
                 supabase.storage.from_("fbkt").upload(path, data)
-                url = supabase.storage.from_("fbkt").get_public_url(path)["publicURL"]
+                url_result = supabase.storage.from_("fbkt").get_public_url(path)
+                if isinstance(url_result, dict):
+                    url = url_result.get("publicURL", str(url_result))
+                else:
+                    url = str(url_result)
                 return {"type": "file", "name": fname, "url": url}
             except Exception as e:
                 # Fallback: return filename without uploading
@@ -234,7 +243,11 @@ def serialize(btype: str, raw):
                 data = buf.getvalue()
                 path = f"uploads/canvas_{int(time.time())}.png"
                 supabase.storage.from_("fbkt").upload(path, data)
-                url = supabase.storage.from_("fbkt").get_public_url(path)["publicURL"]
+                url_result = supabase.storage.from_("fbkt").get_public_url(path)
+                if isinstance(url_result, dict):
+                    url = url_result.get("publicURL", str(url_result))
+                else:
+                    url = str(url_result)
                 return {"type": "image", "url": url}
             except Exception as e:
                 return {"type": "image", "error": str(e)}
@@ -242,16 +255,16 @@ def serialize(btype: str, raw):
         case "Flashcards Session" | "Feynman Session" | "Interleaving Session":
             try:
                 json.dumps(raw)  # test serializability
-                return raw
+                return {"type": btype, "data": raw}
             except Exception:
                 return {"type": btype, "repr": str(raw)}
 
         case _:
             try:
                 json.dumps(raw)
-                return raw
+                return {"type": btype, "data": raw}
             except Exception:
-                return str(raw)
+                return {"type": btype, "content": str(raw)}
 
 # Streamlit Page
 def select_menu():
