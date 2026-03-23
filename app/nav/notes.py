@@ -492,8 +492,8 @@ def canvas():
     fill_color = f"rgba({int(fill_base[1:3], 16)}, {int(fill_base[3:5], 16)}, {int(fill_base[5:7], 16)}, {fill_opacity/100.0})"
     bg_color = st.sidebar.color_picker("Background color hex: ", "#eeeeee")
     bg_image = st.sidebar.file_uploader("Background image:", type=["png", "jpg"])
-    height = st.sidebar.number_input("Canvas height: ", value=500)
-    width = st.sidebar.number_input("Canvas width: ", value=1000)
+    height = st.sidebar.number_input("Canvas height: ", value=400)
+    width = st.sidebar.number_input("Canvas width: ", value=700)
     realtime_update = st.sidebar.checkbox("Update in realtime", True)
 
     canvas_result = st_canvas(

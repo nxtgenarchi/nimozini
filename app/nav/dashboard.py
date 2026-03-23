@@ -14,7 +14,7 @@ def show_page():
     st.title("Dashboard")
     
     #Notes
-    blocks = supabase.table("noteblocks").select("*").order("order_index").execute().data
+    blocks = supabase.table("noteblocks").select("*").order("id", desc=False).execute().data
     df = pd.DataFrame(blocks)
     df['created_at'] = pd.to_datetime(df['created_at'])
     df['hour'] = df['created_at'].dt.hour
