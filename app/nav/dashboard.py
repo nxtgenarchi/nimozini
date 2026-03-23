@@ -32,13 +32,14 @@ def show_page():
     df = pd.DataFrame(blocks)
     df = _ensure_created_at(df)
     df = df[df["created_at"].notna()]
+    
     if "block_type" not in df.columns and "btype" in df.columns:
-            df["block_type"] = df["btype"]
-    df["block_type"] = df.get("block_type", "Unknown").fillna("Unknown")
-    df["subject"] = df.get("subject", "Unknown").fillna("Unknown")
+        df["block_type"] = df["btype"]
+    df["block_type"] = df["block_type"].fillna("Unknown").astype(str)
+    df["subject"] = df["subject"].fillna("Unknown").astype(str)
     df["hour"] = df["created_at"].dt.hour
+    
     if view == "daily":
-        # Supabase note blocks use `btype` in create_block; dashboard charts expect `block_type`.
         daily_chart = alt.Chart(df).mark_bar().encode(
             x=alt.X('hour:O', title='Hour of Day'),
             y=alt.Y('count():Q', title='Number of Blocks'),
@@ -49,9 +50,6 @@ def show_page():
         st.altair_chart(daily_chart, use_container_width=True)
 
         df['period'] = df['created_at'].dt.date
-        period_options = df['period'].unique()
-        selected_period = st.selectbox(f"Select {'day' if view=='daily' else 'week'}", period_options)
-        period_df = df[df['period'] == selected_period]
     else:
         df['weekday'] = df['created_at'].dt.day_name()
         days_order = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
@@ -67,9 +65,6 @@ def show_page():
         st.altair_chart(weekly_chart, use_container_width=True)
 
         df['period'] = df['created_at'].dt.to_period('W').astype(str)
-        period_options = df['period'].unique()
-        selected_period = st.selectbox(f"Select {'day' if view=='daily' else 'week'}", period_options)
-        period_df = df[df['period'] == selected_period]
     
     def get_top_emotions(df, time_col):
         emotion_counts = df.groupby([time_col, 'emotion']).size().reset_index(name='count')
@@ -91,7 +86,15 @@ def show_page():
     if df.empty:
         st.warning("No journal entries with valid created_at timestamps were found for emotion analysis.")
         return
+    
+    if view == "daily":
+        df['period'] = df['created_at'].dt.date
+    else:
+        df['period'] = df['created_at'].dt.to_period('W').astype(str)
         
+    period_options = df['period'].unique()
+    selected_period = st.selectbox(f"Select {'day' if view=='daily' else 'week'}", period_options)
+    period_df = df[df['period'] == selected_period]
     donut_df = get_top_emotions(period_df, 'period')
     if donut_df.empty:
         st.warning("No emotion data for selected period.")
