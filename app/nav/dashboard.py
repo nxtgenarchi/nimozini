@@ -49,6 +49,9 @@ def show_page():
         st.altair_chart(daily_chart, use_container_width=True)
 
         df['period'] = df['created_at'].dt.date
+        period_options = df['period'].unique()
+        selected_period = st.selectbox(f"Select {'day' if view=='daily' else 'week'}", period_options)
+        period_df = df[df['period'] == selected_period]
     else:
         df['weekday'] = df['created_at'].dt.day_name()
         days_order = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
@@ -64,6 +67,9 @@ def show_page():
         st.altair_chart(weekly_chart, use_container_width=True)
 
         df['period'] = df['created_at'].dt.to_period('W').astype(str)
+        period_options = df['period'].unique()
+        selected_period = st.selectbox(f"Select {'day' if view=='daily' else 'week'}", period_options)
+        period_df = df[df['period'] == selected_period]
     
     def get_top_emotions(df, time_col):
         emotion_counts = df.groupby([time_col, 'emotion']).size().reset_index(name='count')
@@ -86,9 +92,6 @@ def show_page():
         st.warning("No journal entries with valid created_at timestamps were found for emotion analysis.")
         return
         
-    period_options = df['period'].unique()
-    selected_period = st.selectbox(f"Select {'day' if view=='daily' else 'week'}", period_options)
-    period_df = df[df['period'] == selected_period]
     donut_df = get_top_emotions(period_df, 'period')
     if donut_df.empty:
         st.warning("No emotion data for selected period.")
