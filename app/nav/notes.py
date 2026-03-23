@@ -551,7 +551,6 @@ def feynman():
             if st.sidebar.button("Finish Session", key="feynman_end"):
                 st.session_state["feynman_end"] = True
                 st.rerun()
-                return {"concepts": st.session_state["concepts"], "concepts_summary": st.session_state["concepts_summary"], "laps": st.session_state["lap"], "gaps_num_list": st.session_state["gaps_num_list"]}
     else:
         st.sidebar.write("Session over.")
         return {"concepts": st.session_state["concepts"], "concepts_summary": st.session_state["concepts_summary"], "laps": st.session_state["lap"], "gaps_num_list": st.session_state["gaps_num_list"]}
