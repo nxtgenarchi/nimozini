@@ -35,7 +35,10 @@ def show_page():
     if df.empty:
         st.warning("No note blocks with valid created_at timestamps were found for dashboard charts.")
     else:
+        df['block_type'] = df.get('block_type', 'Unknown').fillna('Unknown')
+        df['subject'] = df.get('subject', 'Unknown').fillna('Unknown')
         df['hour'] = df['created_at'].dt.hour
+
         daily_chart = alt.Chart(df).mark_bar().encode(
             x=alt.X('hour:O', title='Hour of Day'),
             y=alt.Y('count():Q', title='Number of Blocks'),
@@ -48,6 +51,7 @@ def show_page():
         df['weekday'] = df['created_at'].dt.day_name()
         days_order = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
         df['weekday'] = pd.Categorical(df['weekday'], categories=days_order, ordered=True)
+
         weekly_chart = alt.Chart(df).mark_bar().encode(
             x=alt.X('weekday:N', sort=days_order, title='Day of Week'),
             y=alt.Y('count():Q', title='Number of Blocks'),
