@@ -25,16 +25,14 @@ def show_page():
         df["created_at"] = pd.to_datetime(df["created_at"], errors="coerce")
         return df
 
-    view = st.radio("Journal view", ("daily", "weekly"), index=0)
+    view = st.radio("View", ("daily", "weekly"), index=0)
 
-    #Notes
+    #Notes and Journal
     blocks = supabase.table("noteblocks").select("*").order("id", desc=False).execute().data
     df = pd.DataFrame(blocks)
     df = _ensure_created_at(df)
     df = df[df["created_at"].notna()]
-    if df.empty:
-        st.warning("No note blocks with valid created_at timestamps were found for dashboard charts.")
-    else:
+    if view == "daily":
         # Supabase note blocks use `btype` in create_block; dashboard charts expect `block_type`.
         if "block_type" not in df.columns and "btype" in df.columns:
             df["block_type"] = df["btype"]
@@ -51,6 +49,8 @@ def show_page():
         ).properties(width=80, height=400, title="Blocks per Subject by Hour (Daily)").interactive()
         st.altair_chart(daily_chart, use_container_width=True)
 
+        df['period'] = df['created_at'].dt.date
+    else:
         df['weekday'] = df['created_at'].dt.day_name()
         days_order = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
         df['weekday'] = pd.Categorical(df['weekday'], categories=days_order, ordered=True)
@@ -63,8 +63,9 @@ def show_page():
             tooltip=['subject', 'block_type', 'count()']
         ).properties(width=80, height=400, title="Blocks per Subject by Day (Weekly)").interactive()
         st.altair_chart(weekly_chart, use_container_width=True)
+
+        df['period'] = df['created_at'].dt.to_period('W').astype(str)
     
-    #Journal
     def get_top_emotions(df, time_col):
         emotion_counts = df.groupby([time_col, 'emotion']).size().reset_index(name='count')
         top_emotions = []
@@ -85,11 +86,7 @@ def show_page():
     if df.empty:
         st.warning("No journal entries with valid created_at timestamps were found for emotion analysis.")
         return
-
-    if view == 'daily':
-        df['period'] = df['created_at'].dt.date
-    else:
-        df['period'] = df['created_at'].dt.to_period('W').astype(str)
+        
     period_options = df['period'].unique()
     selected_period = st.selectbox(f"Select {'day' if view=='daily' else 'week'}", period_options)
     period_df = df[df['period'] == selected_period]
