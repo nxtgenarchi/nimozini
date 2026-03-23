@@ -35,9 +35,12 @@ def show_page():
     if df.empty:
         st.warning("No note blocks with valid created_at timestamps were found for dashboard charts.")
     else:
-        df['block_type'] = df.get('block_type', 'Unknown').fillna('Unknown')
-        df['subject'] = df.get('subject', 'Unknown').fillna('Unknown')
-        df['hour'] = df['created_at'].dt.hour
+        # Supabase note blocks use `btype` in create_block; dashboard charts expect `block_type`.
+        if "block_type" not in df.columns and "btype" in df.columns:
+            df["block_type"] = df["btype"]
+        df["block_type"] = df.get("block_type", "Unknown").fillna("Unknown")
+        df["subject"] = df.get("subject", "Unknown").fillna("Unknown")
+        df["hour"] = df["created_at"].dt.hour
 
         daily_chart = alt.Chart(df).mark_bar().encode(
             x=alt.X('hour:O', title='Hour of Day'),
