@@ -75,20 +75,27 @@ def load_items_from_sources() -> pd.DataFrame:
 
 def load_interactions() -> pd.DataFrame:
     """
-    Load interactions from Supabase table 'interactions'.
-    Expected columns: id, user_id, item_id, event_type, timestamp, duration_seconds, label (optional)
-    If label missing, derive from event_type.
+    Load interactions from Supabase table 'noteblocks'.
+    Treat each noteblock as an interaction (creation event).
+    Expected columns: id (as item_id), btype (as event_type), created_at (as timestamp), label=1 (creation implies engagement)
     """
-    res = supabase.table("interactions").select("*").execute()
-    df = pd.DataFrame(res.data or [])
+    try:
+        res = supabase.table("noteblocks").select("*").execute()
+        df = pd.DataFrame(res.data or [])
+    except Exception as err:
+        st.warning("Error reading noteblocks for interactions: %s" % err)
+        return pd.DataFrame()
+
     if df.empty:
         return df
+    # Map columns to interaction format
+    df = df.rename(columns={"id": "item_id", "btype": "event_type", "created_at": "timestamp"})
+    df["event_type"] = df["event_type"].fillna("create")  # default to 'create' if btype missing
+    df["label"] = 1  # assume creation is positive engagement
     if "timestamp" in df.columns:
         df["timestamp"] = pd.to_datetime(df["timestamp"], errors="coerce")
     else:
         df["timestamp"] = pd.NaT
-    if "label" not in df.columns:
-        df["label"] = df["event_type"].apply(lambda e: 1 if e in ("complete", "save", "solve") else 0)
     return df
 
 
@@ -286,3 +293,4 @@ def load_model(path: str = MODEL_PATH):
         return None
     with open(path, "rb") as f:
         return pickle.load(f)
+    interactions
