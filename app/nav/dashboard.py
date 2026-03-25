@@ -113,7 +113,6 @@ def show_page():
 
     # ML Recommender
     st.header("Recommendations")
-
     def get_recommendations():
         try:
             items = ml.load_items_from_sources()
