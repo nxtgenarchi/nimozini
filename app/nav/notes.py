@@ -576,7 +576,7 @@ def interleave():
             st.session_state["add_ons"] = add_ons_form.split("\n")
         else:
             st.session_state["add_ons"] = []
-        if st.button("Suggest Interleaving"):
+        if st.sidebar.button("Suggest Interleaving"):
             st.session_state["interleave"] = True
         if st.session_state.get("interleave"):
             match st.session_state["method"]:
@@ -595,7 +595,8 @@ def interleave():
                     subtopics_in_current_topic = list(s["name"] for s in supabase.table("subtopics").select("name").eq("topic_id", topic_id).execute().data)
                     interleaved_subtopics = random.sample(subtopics_in_current_topic, min(5, len(subtopics_in_current_topic))) + random.sample(st.session_state["add_ons"], min(2, len(st.session_state["add_ons"])))
             st.session_state["interleave"] = False
-            if st.button("Pin"):
+            st.sidebar.write(interleaved_subtopics)
+            if st.sidebar.button("Pin"):
                 st.session_state["pin"] = True
             if st.session_state.get("pin"):
                 st.session_state["interleaved_list"] = st.session_state["interleaved_list"].append(interleaved_subtopics)
