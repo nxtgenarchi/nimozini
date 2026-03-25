@@ -560,9 +560,11 @@ def interleave():
     if "interleaved_list" not in st.session_state:
         st.session_state["interleaved_list"] = []
     if "interleave_end" not in st.session_state:
-        st.session_state["feynman_end"] = False
+        st.session_state["interleave_end"] = False
     if "method" not in st.session_state:
         st.session_state["method"] = "placeholder"
+    if "add_ons" not in st.session_state:
+        st.session_state["add_ons"] = []
     st.sidebar.divider()
     if st.session_state.get("interleave_end") == False:
         topic_id = supabase.table("subtopics").select("topic_id").eq("id", st.session_state.get("view_notes")).execute().data[0]["topic_id"]
