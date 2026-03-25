@@ -531,28 +531,23 @@ def feynman():
         st.session_state["lap"] = 0
     if "gaps_num_list" not in st.session_state:
         st.session_state["gaps_num_list"] = []
-    if "feynman_end" not in st.session_state:
-        st.session_state["feynman_end"] = False
     st.sidebar.divider()
-    if st.session_state.get("feynman_end") == False:
-        st.session_state["concepts"] = st.sidebar.number_input("Number of concepts", min_value=1, value=5, key="feynman_concepts")
-        st.session_state["concepts_summary"] = st.sidebar.text_area("Concepts summary", key="feynman_concepts_summary")
-        if st.session_state["concepts"] > 0 and st.session_state["concepts_summary"].strip():
-            if st.sidebar.button("Add New Lap", key="feynman_add_lap"):
-                st.session_state["lap"] += 1
-                st.session_state[f"feynman_lap_{st.session_state['lap']}"] = True
-            if st.session_state.get(f"feynman_lap_{st.session_state['lap']}"):
-                st.sidebar.write(f"lap {st.session_state['lap']}")
-                gaps_num = st.sidebar.number_input("Number of gaps to fill", min_value=0, max_value=st.session_state["concepts"], value=st.session_state["concepts"], key=f"feynman_gaps_num_{st.session_state['lap']}")
-                st.session_state["gaps_num_list"].append(gaps_num)
-                gaps_summary = st.sidebar.text_area("Gaps summary", key=f"feynman_gaps_summary_{st.session_state['lap']}")
-                if gaps_num >= 0 and gaps_summary.strip():
-                    st.sidebar.write("try filling in the gaps...")
-            if st.sidebar.button("Finish Session", key="feynman_end"):
-                st.session_state["feynman_end"] = True
-                return {"concepts": st.session_state["concepts"], "concepts_summary": st.session_state["concepts_summary"], "laps": st.session_state["lap"], "gaps_num_list": st.session_state["gaps_num_list"]}
-    if st.session_state.get("feynman_end"):
-        st.sidebar.write("Session over.")
+    st.session_state["concepts"] = st.sidebar.number_input("Number of concepts", min_value=1, value=5, key="feynman_concepts")
+    st.session_state["concepts_summary"] = st.sidebar.text_area("Concepts summary", key="feynman_concepts_summary")
+    if st.session_state["concepts"] > 0 and st.session_state["concepts_summary"].strip():
+        if st.sidebar.button("Add New Lap", key="feynman_add_lap"):
+            st.session_state["lap"] += 1
+            st.session_state[f"feynman_lap_{st.session_state['lap']}"] = True
+        if st.session_state.get(f"feynman_lap_{st.session_state['lap']}"):
+            st.sidebar.write(f"lap {st.session_state['lap']}")
+            gaps_num = st.sidebar.number_input("Number of gaps to fill", min_value=0, max_value=st.session_state["concepts"], value=st.session_state["concepts"], key=f"feynman_gaps_num_{st.session_state['lap']}")
+            st.session_state["gaps_num_list"].append(gaps_num)
+            gaps_summary = st.sidebar.text_area("Gaps summary", key=f"feynman_gaps_summary_{st.session_state['lap']}")
+            if gaps_num >= 0 and gaps_summary.strip():
+                st.sidebar.write("try filling in the gaps...")
+        if st.sidebar.button("Finish Session", key="feynman_end"):
+            st.session_state["feynman_end"] = True
+            return {"concepts": st.session_state["concepts"], "concepts_summary": st.session_state["concepts_summary"], "laps": st.session_state["lap"], "gaps_num_list": st.session_state["gaps_num_list"]}
 
 
 def interleave():
