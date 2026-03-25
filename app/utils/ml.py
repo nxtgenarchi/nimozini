@@ -31,7 +31,7 @@ def load_items_from_sources() -> pd.DataFrame:
     Load items from notes.get_blocks() and journal.get_entries().
     Normalizes to columns: id, title, text, subject, block_type, created_at, item_type
     """
-    note_items = notes.get_blocks() or []
+    note_items = supabase.table("noteblocks").select("*").order("id", desc=False).execute().data or []
     journal_items = journal.get_entries() or []
 
     # normalize notes

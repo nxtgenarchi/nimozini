@@ -114,35 +114,39 @@ def show_page():
     # ML Recommender
     st.header("Recommendations")
     def get_recommendations():
-        items = ml.load_items_from_sources()
-        if items.empty:
-            return {"subjects": [], "methods": {}, "message": "No note or journal items found."}
+        try:
+            items = ml.load_items_from_sources()
+            if items.empty:
+                return {"subjects": [], "methods": {}, "message": "No note or journal items found."}
 
-        interactions = ml.load_interactions()
-        if interactions.empty or len(interactions) < 5:
-            subject_counts = items["subject"].fillna("Unknown").astype(str).value_counts()
-            top_subjects = list(subject_counts.head(3).items())
-            methods = {}
-            for subj in [s for s, _ in top_subjects]:
-                block_types = items[items["subject"].fillna("Unknown").astype(str) == subj]["block_type"].fillna("Unknown").astype(str).value_counts()
-                methods[subj] = list(zip(block_types.index.tolist()[:3], block_types.values.tolist()[:3]))
-            return {"subjects": top_subjects, "methods": methods, "message": "Not enough interaction data: fallback to frequency-based recommendations."}
+            interactions = ml.load_interactions()
+            if interactions.empty or len(interactions) < 5:
+                subject_counts = items["subject"].fillna("Unknown").astype(str).value_counts()
+                top_subjects = list(subject_counts.head(3).items())
+                methods = {}
+                for subj in [s for s, _ in top_subjects]:
+                    block_types = items[items["subject"].fillna("Unknown").astype(str) == subj]["block_type"].fillna("Unknown").astype(str).value_counts()
+                    methods[subj] = list(zip(block_types.index.tolist()[:3], block_types.values.tolist()[:3]))
+                return {"subjects": top_subjects, "methods": methods, "message": "Not enough interaction data: fallback to frequency-based recommendations."}
 
-        X_items, state, items_df = ml.build_feature_matrices(items)
-        X, y, timestamps, merged = ml.build_interaction_dataset(items_df, interactions, X_items)
-        model = ml.load_model()
+            X_items, state, items_df = ml.build_feature_matrices(items)
+            X, y, timestamps, merged = ml.build_interaction_dataset(items_df, interactions, X_items)
+            model = ml.load_model()
 
-        if model is None and X is not None and y is not None and len(y) > 0:
-            model, stats = ml.train_lightgbm_classifier(X, y, timestamps)
-            if model is not None:
-                ml.save_model(model)
+            if model is None and X is not None and y is not None and len(y) > 0:
+                model, stats = ml.train_lightgbm_classifier(X, y, timestamps)
+                if model is not None:
+                    ml.save_model(model)
 
-        if model is None:
-            return {"subjects": [], "methods": {}, "message": "Model unavailable; try collecting more interactions."}
+            if model is None:
+                return {"subjects": [], "methods": {}, "message": "Model unavailable; try collecting more interactions."}
 
-        recs = ml.recommend_categories_from_model(model, X_items, items_df, state, user_context_texts=[])
-        recs["message"] = "Model-based recommendations"
-        return recs
+            recs = ml.recommend_categories_from_model(model, X_items, items_df, state, user_context_texts=[])
+            recs["message"] = "Model-based recommendations"
+            return recs
+        except Exception as err:
+            st.error(f"Recommendation system error: {err}")
+            return {"subjects": [], "methods": {}, "message": "Error during recommendation generation."}
 
     if st.button("Show Recommendations"):
         st.session_state["rec"] = True
