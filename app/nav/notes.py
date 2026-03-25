@@ -546,7 +546,6 @@ def feynman():
             if gaps_num >= 0 and gaps_summary.strip():
                 st.sidebar.write("try filling in the gaps...")
         if st.sidebar.button("Finish Session", key="feynman_end"):
-            st.session_state["feynman_end"] = True
             return {"concepts": st.session_state["concepts"], "concepts_summary": st.session_state["concepts_summary"], "laps": st.session_state["lap"], "gaps_num_list": st.session_state["gaps_num_list"]}
 
 
