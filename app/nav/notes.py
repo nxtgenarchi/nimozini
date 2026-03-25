@@ -567,7 +567,7 @@ def interleave():
         st.session_state["add_ons"] = []
     st.sidebar.divider()
     if st.session_state.get("interleave_end") == False:
-        topic_id = supabase.table("subtopics").select("topic_id").eq("id", st.session_state.get("view_notes")).execute().data[0]["topic_id"]
+        topic_id = supabase.table("subtopics").select("topic_id").eq("id", st.session_state.get("view_notes")["subtopic"]).execute().data[0]["topic_id"]
         unit_id = supabase.table("topics").select("unit_id").eq("id", topic_id).execute().data[0]["unit_id"]
         subject_id = supabase.table("units").select("subject_id").eq("id", unit_id).execute().data[0]["subject_id"]
         st.session_state["method"] = st.sidebar.selectbox("Interleave by:", ["Subtopics in two subjects", "Subtopics in current subject", "Subtopics in current unit", "Subtopics in current topic"])
