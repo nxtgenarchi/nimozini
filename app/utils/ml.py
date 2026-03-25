@@ -293,4 +293,3 @@ def load_model(path: str = MODEL_PATH):
         return None
     with open(path, "rb") as f:
         return pickle.load(f)
-    interactions
