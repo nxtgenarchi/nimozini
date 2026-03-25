@@ -550,9 +550,9 @@ def feynman():
                     st.sidebar.write("try filling in the gaps...")
             if st.sidebar.button("Finish Session", key="feynman_end"):
                 st.session_state["feynman_end"] = True
-    else:
+                return {"concepts": st.session_state["concepts"], "concepts_summary": st.session_state["concepts_summary"], "laps": st.session_state["lap"], "gaps_num_list": st.session_state["gaps_num_list"]}
+    if st.session_state.get("feynman_end"):
         st.sidebar.write("Session over.")
-        return {"concepts": st.session_state["concepts"], "concepts_summary": st.session_state["concepts_summary"], "laps": st.session_state["lap"], "gaps_num_list": st.session_state["gaps_num_list"]}
 
 
 def interleave():
