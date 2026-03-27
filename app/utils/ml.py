@@ -64,7 +64,7 @@ def load_items_from_sources() -> pd.DataFrame:
     df["text"] = df.get("text", "").fillna("")
     df["text_full"] = (df["title"].astype(str) + " " + df["text"].astype(str)).str.strip()
 
-    # time features
+    # time
     df["hour"] = df["created_at"].dt.hour.fillna(-1).astype(int)
     df["weekday"] = df["created_at"].dt.day_name().fillna("Unknown")
     # ensure id column
