@@ -119,7 +119,7 @@ def build_feature_matrices(items_df: pd.DataFrame,
     enc = OneHotEncoder(handle_unknown="ignore", sparse_output=True)
     cat_mat = enc.fit_transform(items_df[list(cat_cols)].fillna(""))
 
-    # numeric
+    # numerics
     if num_cols:
         scaler = StandardScaler()
         num_arr = scaler.fit_transform(items_df[list(num_cols)].fillna(-1).astype(float))
