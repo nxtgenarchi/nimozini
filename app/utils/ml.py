@@ -116,7 +116,7 @@ def build_feature_matrices(items_df: pd.DataFrame,
     text_mat = tf.fit_transform(items_df[text_col].fillna(""))
 
     # categorical
-    enc = OneHotEncoder(handle_unknown="ignore", sparse=True)
+    enc = OneHotEncoder(handle_unknown="ignore", sparse_output=True)
     cat_mat = enc.fit_transform(items_df[list(cat_cols)].fillna(""))
 
     # numeric
@@ -293,3 +293,4 @@ def load_model(path: str = MODEL_PATH):
         return None
     with open(path, "rb") as f:
         return pickle.load(f)
+        sparse
