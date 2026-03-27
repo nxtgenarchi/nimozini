@@ -29,7 +29,7 @@ MODEL_PATH = os.path.join(STATE_DIR, "recommender_model.pkl")
 def load_items_from_sources() -> pd.DataFrame:
     """
     Load items from notes.get_blocks() and journal.get_entries().
-    Normalizes to columns: id, title, text, subject, block_type, created_at, item_type
+    Normalizes to columns: id, title, text, subject, btype, created_at, item_type
     """
     note_items = supabase.table("noteblocks").select("*").order("id", desc=False).execute().data or []
     journal_items = journal.get_entries() or []
@@ -40,18 +40,18 @@ def load_items_from_sources() -> pd.DataFrame:
         notes_df = notes_df.rename(columns={"content": "text", "name": "title"})
         notes_df["item_type"] = "note"
     else:
-        notes_df = pd.DataFrame(columns=["id", "title", "text", "subject", "block_type", "created_at", "item_type"])
+        notes_df = pd.DataFrame(columns=["id", "title", "text", "subject", "btype", "created_at", "item_type"])
 
     # normalize journal entries
     journal_df = pd.DataFrame(journal_items)
     if not journal_df.empty:
-        # journal entries may not have subject/block_type
+        # journal entries may not have subject/btype
         journal_df = journal_df.rename(columns={"description": "text", "created_at": "created_at", "title": "title"})
         journal_df["subject"] = journal_df.get("subject", None)
-        journal_df["block_type"] = journal_df.get("block_type", "journal")
+        journal_df["btype"] = journal_df.get("btype", "journal")
         journal_df["item_type"] = "journal"
     else:
-        journal_df = pd.DataFrame(columns=["id", "title", "text", "subject", "block_type", "created_at", "item_type"])
+        journal_df = pd.DataFrame(columns=["id", "title", "text", "subject", "btype", "created_at", "item_type"])
 
     df = pd.concat([notes_df, journal_df], ignore_index=True, sort=False)
     if "created_at" in df.columns:
@@ -104,7 +104,7 @@ def load_interactions() -> pd.DataFrame:
 # -------------------------
 def build_feature_matrices(items_df: pd.DataFrame,
                            text_col: str = "text_full",
-                           cat_cols: List[str] = ("subject", "block_type", "item_type", "weekday"),
+                           cat_cols: List[str] = ("subject", "btype", "item_type", "weekday"),
                            num_cols: List[str] = ("hour",)):
     """
     Returns:
@@ -215,7 +215,7 @@ def recommend_categories_from_model(model,
                                     time_alpha: float = 0.5):
     """
     Use the trained classifier to predict probability of positive engagement for items given a user context.
-    Aggregate probabilities by subject and (subject, block_type) returning top subjects and their methods.
+    Aggregate probabilities by subject and (subject, btype) returning top subjects and their methods.
     """
     if model is None:
         return {"subjects": [], "methods": {}}
@@ -263,7 +263,7 @@ def recommend_categories_from_model(model,
         if subset.empty:
             methods[subject] = []
             continue
-        m = subset.groupby("block_type")["final_score"].mean().sort_values(ascending=False)
+        m = subset.groupby("btype")["final_score"].mean().sort_values(ascending=False)
         methods[subject] = list(zip(m.index.tolist()[:top_k_methods], m.values.tolist()[:top_k_methods]))
     return {"subjects": top_subjects, "methods": methods}
 
