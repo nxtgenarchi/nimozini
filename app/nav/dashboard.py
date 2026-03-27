@@ -4,6 +4,7 @@ import altair as alt
 from nav import notes, journal
 from utils import ml
 from supabase import create_client, Client
+import os
 
 # Supabase setup
 SUPABASE_URL: str = st.secrets["SUPABASE_URL"]
@@ -114,6 +115,11 @@ def show_page():
     # ML Recommender
     st.header("Recommendations")
     def get_recommendations():
+        # Force retrain by deleting old files
+        if os.path.exists(ml.MODEL_PATH):
+            os.remove(ml.MODEL_PATH)
+        if os.path.exists(ml.STATE_PATH):
+            os.remove(ml.STATE_PATH)
         items = ml.load_items_from_sources()
         if items.empty:
             return {"subjects": [], "methods": {}, "message": "No note or journal items found."}
