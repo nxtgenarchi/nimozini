@@ -100,7 +100,7 @@ def load_interactions() -> pd.DataFrame:
 
 
 # -------------------------
-# Feature engineering
+# Feature engineerng
 # -------------------------
 def build_feature_matrices(items_df: pd.DataFrame,
                            text_col: str = "text_full",
