@@ -105,31 +105,52 @@ def load_interactions() -> pd.DataFrame:
 def build_feature_matrices(items_df: pd.DataFrame,
                            text_col: str = "text_full",
                            cat_cols: List[str] = ("subject", "block_type", "item_type", "weekday"),
-                           num_cols: List[str] = ("hour",)):
+                           num_cols: List[str] = ("hour",),
+                           state: Optional[Dict[str, Any]] = None):
     """
     Returns:
       X_items (sparse matrix), tfidf_vectorizer, cat_encoder, num_scaler, items_df (index aligned)
+    If state is provided, uses pre-fitted transformers from state to transform data.
+    Otherwise, fits new transformers.
     """
     items_df = items_df.reset_index(drop=True).copy()
-    # text
-    tf = TfidfVectorizer(max_features=5000, stop_words="english")
-    text_mat = tf.fit_transform(items_df[text_col].fillna(""))
-
-    # categorical
-    enc = OneHotEncoder(handle_unknown="ignore", sparse_output=True)
-    cat_mat = enc.fit_transform(items_df[list(cat_cols)].fillna(""))
-
-    # numerics
-    if num_cols:
-        scaler = StandardScaler()
-        num_arr = scaler.fit_transform(items_df[list(num_cols)].fillna(-1).astype(float))
-        num_mat = csr_matrix(num_arr)
+    if state is not None:
+        # Use pre-fitted transformers
+        tf = state["tf"]
+        enc = state["enc"]
+        scaler = state["scaler"]
+        cat_cols = state["cat_cols"]
+        num_cols = state["num_cols"]
+        # text
+        text_mat = tf.transform(items_df[text_col].fillna(""))
+        # categorical
+        cat_mat = enc.transform(items_df[list(cat_cols)].fillna(""))
+        # numerics
+        if num_cols:
+            num_arr = scaler.transform(items_df[list(num_cols)].fillna(-1).astype(float))
+            num_mat = csr_matrix(num_arr)
+        else:
+            num_mat = csr_matrix((len(items_df), 0))
     else:
-        scaler = None
-        num_mat = csr_matrix((len(items_df), 0))
+        # Fit new transformers
+        # text
+        tf = TfidfVectorizer(max_features=5000, stop_words="english")
+        text_mat = tf.fit_transform(items_df[text_col].fillna(""))
+        # categorical
+        enc = OneHotEncoder(handle_unknown="ignore", sparse_output=True)
+        cat_mat = enc.fit_transform(items_df[list(cat_cols)].fillna(""))
+        # numerics
+        if num_cols:
+            scaler = StandardScaler()
+            num_arr = scaler.fit_transform(items_df[list(num_cols)].fillna(-1).astype(float))
+            num_mat = csr_matrix(num_arr)
+        else:
+            scaler = None
+            num_mat = csr_matrix((len(items_df), 0))
 
     X = hstack([text_mat, cat_mat, num_mat], format="csr")
-    state = {"tf": tf, "enc": enc, "scaler": scaler, "cat_cols": cat_cols, "num_cols": num_cols}
+    if state is None:
+        state = {"tf": tf, "enc": enc, "scaler": scaler, "cat_cols": cat_cols, "num_cols": num_cols}
     return X, state, items_df
 
 
