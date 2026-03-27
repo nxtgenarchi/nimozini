@@ -186,7 +186,7 @@ def train_lightgbm_classifier(X, y, timestamps, n_splits: int = 3, params: dict 
         y_train = y[train_idx]
         y_test = y[test_idx]
         model = lgb.LGBMClassifier(**params)
-        model.fit(X_train, y_train, eval_set=[(X_test, y_test)], early_stopping_rounds=20, verbose=False)
+        model.fit(X_train, y_train, eval_set=[(X_test, y_test)], callbacks=[lgb.early_stopping(20)], verbose=-1)
         preds = model.predict_proba(X_test)[:, 1]
         try:
             auc = roc_auc_score(y_test, preds)
