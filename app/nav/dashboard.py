@@ -129,7 +129,14 @@ def show_page():
                     methods[subj] = list(zip(block_types.index.tolist()[:3], block_types.values.tolist()[:3]))
                 return {"subjects": top_subjects, "methods": methods, "message": "Not enough interaction data: fallback to frequency-based recommendations."}
 
-            X_items, state, items_df = ml.build_feature_matrices(items)
+            # Load saved state for consistent feature transformation
+            saved_state = ml.load_state()
+            if saved_state is not None:
+                X_items, _, items_df = ml.build_feature_matrices(items, state=saved_state)
+                state = saved_state  # Use saved state for recommendations
+            else:
+                X_items, state, items_df = ml.build_feature_matrices(items)
+                ml.save_state(state)  # Save for future use
             X, y, timestamps, merged = ml.build_interaction_dataset(items_df, interactions, X_items)
             model = ml.load_model()
 
