@@ -154,7 +154,6 @@ def show_page():
             return {"subjects": [], "methods": {}, "message": "Model unavailable; try collecting more interactions."}
 
         recs = ml.recommend_categories_from_model(model, X_items, items_df, state, user_context_texts=[])
-        recs["message"] = "Model-based recommendations"
         return recs
 
     if st.button("Show Recommendations"):
@@ -174,17 +173,3 @@ def show_page():
             st.write(f"You should probably study: {', '.join([s.split(' (')[0] for s in subjects_list])}.")
             if methods_list:
                 st.write(f"Suggested study methods: {', '.join([m.split(' (')[0] for m in methods_list])}.")
-
-            st.subheader("Subject ranking")
-            for subject, score in recs["subjects"]:
-                st.write(f"• {subject}: {score:.2f}" if isinstance(score, (int, float)) else f"• {subject}")
-
-            st.subheader("Method ranking by subject")
-            for subject, methods in recs.get("methods", {}).items():
-                if not methods:
-                    continue
-                with st.expander(subject):
-                    for method, mscore in methods:
-                        st.write(f"• {method}: {mscore:.2f}")
-
-            st.caption(recs.get("message", ""))
