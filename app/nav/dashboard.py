@@ -42,7 +42,17 @@ def show_page():
     df["hour"] = df["created_at"].dt.hour
     
     if view == "daily":
-        daily_chart = alt.Chart(df).mark_bar().encode(
+        df['period'] = df['created_at'].dt.date
+    else:
+        df['period'] = df['created_at'].dt.to_period('W').astype(str)
+    
+    # Add period selection for notes
+    period_options = df['period'].unique()
+    selected_period = st.selectbox(f"Select {'day' if view=='daily' else 'week'} (Notes)", period_options)
+    df_period = df[df['period'] == selected_period]
+    
+    if view == "daily":
+        daily_chart = alt.Chart(df_period).mark_bar().encode(
             x=alt.X('hour:O', title='Hour of Day'),
             y=alt.Y('count():Q', title='Number of Blocks'),
             color=alt.Color('block_type:N', title='Block Type'),
@@ -50,14 +60,12 @@ def show_page():
             tooltip=['subject', 'block_type', 'count()']
         ).properties(width=80, height=400, title="Blocks per Subject by Hour (Daily)").interactive()
         st.altair_chart(daily_chart, use_container_width=True)
-
-        df['period'] = df['created_at'].dt.date
     else:
-        df['weekday'] = df['created_at'].dt.day_name()
+        df_period['weekday'] = df_period['created_at'].dt.day_name()
         days_order = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-        df['weekday'] = pd.Categorical(df['weekday'], categories=days_order, ordered=True)
+        df_period['weekday'] = pd.Categorical(df_period['weekday'], categories=days_order, ordered=True)
 
-        weekly_chart = alt.Chart(df).mark_bar().encode(
+        weekly_chart = alt.Chart(df_period).mark_bar().encode(
             x=alt.X('weekday:N', sort=days_order, title='Day of Week'),
             y=alt.Y('count():Q', title='Number of Blocks'),
             color=alt.Color('block_type:N', title='Block Type'),
@@ -65,8 +73,6 @@ def show_page():
             tooltip=['subject', 'block_type', 'count()']
         ).properties(width=80, height=400, title="Blocks per Subject by Day (Weekly)").interactive()
         st.altair_chart(weekly_chart, use_container_width=True)
-
-        df['period'] = df['created_at'].dt.to_period('W').astype(str)
     
     def get_top_emotions(df, time_col):
         emotion_counts = df.groupby([time_col, 'emotion']).size().reset_index(name='count')
