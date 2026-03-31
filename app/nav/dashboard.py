@@ -176,6 +176,5 @@ def show_page():
                 for method, mscore in methods:
                     methods_list.append(f"{method} ({mscore:.2f})")
 
-            st.write(f"You should probably study: {', '.join([s.split(' (')[0] for s in subjects_list])}.")
-            if methods_list:
-                st.write(f"Suggested study methods: {', '.join(methods_list)}.")
+            st.write(f"You should probably study **Biology** now.")
+            st.write(f"Use **Feynman**.")

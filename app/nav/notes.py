@@ -579,20 +579,45 @@ def interleave():
         if st.sidebar.button("Suggest Interleaving"):
             st.session_state["interleave"] = True
         if st.session_state.get("interleave"):
+            def _ids(rows, key="id"):
+                return [row[key] for row in rows] if rows else []
+
+            def _subtopic_names(topic_ids):
+                if not topic_ids:
+                    return []
+                result = supabase.table("subtopics").select("name").in_("topic_id", topic_ids).execute().data
+                return [s["name"] for s in result] if result else []
+
+            def _topic_ids_by_subject(subj_id):
+                unit_rows = supabase.table("units").select("id").eq("subject_id", subj_id).execute().data
+                unit_ids = _ids(unit_rows)
+                if not unit_ids:
+                    return []
+                topic_rows = supabase.table("topics").select("id").in_("unit_id", unit_ids).execute().data
+                return _ids(topic_rows)
+
+            def _topic_ids_by_unit(unit_id_):
+                topic_rows = supabase.table("topics").select("id").eq("unit_id", unit_id_).execute().data
+                return _ids(topic_rows)
+
             match st.session_state["method"]:
                 case "Subtopics in two subjects":
                     subject2 = select_subject(True)["id"]
-                    subtopics_in_current_subject = list(s["name"] for s in supabase.table("subtopics").select("name").in_("topic_id", supabase.table("topics").select("id").in_("unit_id", supabase.table("units").select("id").eq("subject_id", subject_id).execute().data).execute().data).execute().data)
-                    subtopics_in_subject2 = list(s["name"] for s in supabase.table("subtopics").select("name").in_("topic_id", supabase.table("topics").select("id").in_("unit_id", supabase.table("units").select("id").eq("subject_id", subject2).execute().data).execute().data).execute().data)
+                    current_topic_ids = _topic_ids_by_subject(subject_id)
+                    subject2_topic_ids = _topic_ids_by_subject(subject2) if subject2 else []
+                    subtopics_in_current_subject = _subtopic_names(current_topic_ids)
+                    subtopics_in_subject2 = _subtopic_names(subject2_topic_ids)
                     interleaved_subtopics = random.sample(subtopics_in_current_subject, min(3, len(subtopics_in_current_subject))) + random.sample(subtopics_in_subject2, min(3, len(subtopics_in_subject2))) + random.sample(st.session_state["add_ons"], min(2, len(st.session_state["add_ons"])))
                 case "Subtopics in current subject":
-                    subtopics_in_current_subject = list(s["name"] for s in supabase.table("subtopics").select("name").in_("topic_id", supabase.table("topics").select("id").in_("unit_id", supabase.table("units").select("id").eq("subject_id", subject_id).execute().data).execute().data).execute().data)
+                    current_topic_ids = _topic_ids_by_subject(subject_id)
+                    subtopics_in_current_subject = _subtopic_names(current_topic_ids)
                     interleaved_subtopics = random.sample(subtopics_in_current_subject, min(5, len(subtopics_in_current_subject))) + random.sample(st.session_state["add_ons"], min(2, len(st.session_state["add_ons"])))
                 case "Subtopics in current unit":
-                    subtopics_in_current_unit = list(s["name"] for s in supabase.table("subtopics").select("name").in_("topic_id", supabase.table("topics").select("id").eq("unit_id", unit_id).execute().data).execute().data)
+                    current_unit_topic_ids = _topic_ids_by_unit(unit_id)
+                    subtopics_in_current_unit = _subtopic_names(current_unit_topic_ids)
                     interleaved_subtopics = random.sample(subtopics_in_current_unit, min(5, len(subtopics_in_current_unit))) + random.sample(st.session_state["add_ons"], min(2, len(st.session_state["add_ons"])))
                 case "Subtopics in current topic":
-                    subtopics_in_current_topic = list(s["name"] for s in supabase.table("subtopics").select("name").eq("topic_id", topic_id).execute().data)
+                    subtopics_in_current_topic = [s["name"] for s in supabase.table("subtopics").select("name").eq("topic_id", topic_id).execute().data or []]
                     interleaved_subtopics = random.sample(subtopics_in_current_topic, min(5, len(subtopics_in_current_topic))) + random.sample(st.session_state["add_ons"], min(2, len(st.session_state["add_ons"])))
             st.session_state["interleave"] = False
             st.sidebar.write(interleaved_subtopics)
