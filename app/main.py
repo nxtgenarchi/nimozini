@@ -8,7 +8,7 @@ def main():
         st.session_state["is_auth"] = False
     placeholder = st.empty()
     if not st.session_state["is_auth"]:
-        auth_value = placeholder.text_input("This is a personal app. Please enter the correct password to continue:", type="password", key="auth_input")
+        auth_value = placeholder.text_input("This is a private app. Please enter the correct password to continue:", type="password", key="auth_input")
         if auth_value:
             if auth_value == st.secrets.get("PASSWORD", ""):
                 st.session_state["is_auth"] = True

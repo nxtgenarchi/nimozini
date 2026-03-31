@@ -178,4 +178,4 @@ def show_page():
 
             st.write(f"You should probably study: {', '.join([s.split(' (')[0] for s in subjects_list])}.")
             if methods_list:
-                st.write(f"Suggested study methods: {', '.join([m.split(' (')[0] for m in methods_list])}.")
+                st.write(f"Suggested study methods: {', '.join(methods_list)}.")
