@@ -7,7 +7,7 @@ NIMOZINI is my private Streamlit app which is a study mental wellness assistant 
 
 ---
 
-## 1. Project Overview
+## Project Overview
 
 I made NIMOZINI since I wanted single interface for organization, self-reflection, and evidence-based study planning, similar to Notion's but with my own philosophy. It combines:
 
@@ -22,9 +22,9 @@ The source code is contained in `app/main.py`, `app/nav/*`, and utility modules 
 
 ---
 
-## 2. File and Module Breakdown
+## File and Module Breakdown
 
-### 2.1 `app/main.py`
+### `app/main.py`
 
 `main.py` is the entry point for Streamlit. It:
 
@@ -35,14 +35,14 @@ The source code is contained in `app/main.py`, `app/nav/*`, and utility modules 
 
 This file defines the app shell and access control, leaving feature implementation to the navigation pages.
 
-### 2.2 `app/nav/home.py`
+### `app/nav/home.py`
 
 `home.py` contains the `show_page()` function and acts as the landing page. It shows:
 
 - title: "NIMOZINI: Study & Mental Health Buddy"
 - a symbolic image (Mnemosyne, goddess of memory)
 
-### 2.3 `app/nav/dashboard.py`
+### `app/nav/dashboard.py`
 
 `dashboard.py` offers the analytics overview and recommendations engine. Key behaviors:
 
@@ -64,7 +64,7 @@ In recommendation flow:
 
 When recommendations are ready, it writes a short summary.
 
-### 2.4 `app/nav/notes.py`
+### `app/nav/notes.py`
 
 `notes.py` is the largest module and includes full note management toolbox. It features:
 
@@ -88,7 +88,7 @@ The UI function `show_page()` works in two states:
 
 It allows multiple add/update/delete operations and renders existing blocks. Content is live-updated to Supabase.
 
-### 2.5 `app/nav/journal.py`
+### `app/nav/journal.py`
 
 `journal.py` provides journaling plus sentiment analysis.
 
@@ -102,11 +102,11 @@ It allows multiple add/update/delete operations and renders existing blocks. Con
 - sidebar form for adding new entries (title + description)
 - on submit, calls `create_entry()` and reruns
 
-### 2.6 `app/utils/helpers.py`
+### `app/utils/helpers.py`
 
 Currently a placeholder (marked `#spare file`) and can host shared utility functions in future.
 
-### 2.7 `app/utils/ml.py`
+### `app/utils/ml.py`
 
 `ml.py` contains the machine learning pipeline for recommendations:
 
@@ -124,9 +124,9 @@ This module enables the Dashboard's “Show Recommendations” behavior.
 
 ---
 
-## 3. Data Model and Backend
+## Data Model and Backend
 
-### 3.1 Supabase Tables involved
+### Supabase tables involved
 - `subjects` (id, name)
 - `units` (id, subject_id, name)
 - `topics` (id, unit_id, name)
@@ -134,14 +134,14 @@ This module enables the Dashboard's “Show Recommendations” behavior.
 - `noteblocks` (id, subtopic_id, subject, btype, content, created_at) plus optional metadata fields
 - `journal_entries` (id, title, description, emotion, created_at)
 
-### 3.2 Secret configuration
+### Secret configuration
 - `SUPABASE_URL`
 - `SUPABASE_KEY`
 - `PASSWORD` (app unlock key)
 
 ---
 
-## 4. User Experience
+## User Experience
 
 ### Authentication
 - matrix simple text password prompt
@@ -168,7 +168,7 @@ This module enables the Dashboard's “Show Recommendations” behavior.
 
 ---
 
-## 5. Setup and Run Instructions
+## Setup and Run Instructions
 
 1. clone repo
 2. configure `secrets.toml` or environment variables:
@@ -186,7 +186,7 @@ Notes:
 
 ---
 
-## 6. Extension Ideas
+## Extension Ideas
 
 - Add `app/utils/helpers.py` helper functions and service layer centralization
 - Add automated metadata versioning / schema migration with Supabase functions
@@ -196,14 +196,14 @@ Notes:
 
 ---
 
-## 7. Support & Contribution
+## Support and Contribution
 
 - The project is open for improvement. Raise issues if tables or model behavior are inconsistent.
 - Add tests in a dedicated `tests/` folder to validate data flows for notes, journals, and recommender models.
 
 ---
 
-## 8. Notes
+## Notes
 
 - `README` here is based on current `app` folder state (March 2026 snapshot)
 - Certain UX areas may be refactored to avoid blocking `st.button` loops (e.g., Pomodoro and interleave state logic) if locking is needed for production.
