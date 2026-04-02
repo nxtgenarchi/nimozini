@@ -145,7 +145,7 @@ def display_blocks(subtopic_id: str):
                 case "internal_link":
                     linked_subtopic_id = str(content_value)
                     linked_subtopic_name = supabase.table("subtopics").select("name").eq("id", linked_subtopic_id).execute().data[0]["name"]
-                    if st.button(f"Go to {linked_subtopic_name}", key=f"link_{block['id']}"):
+                    if st.button(f"Go to **{linked_subtopic_name}**", key=f"link_{block['id']}"):
                         st.session_state["view_notes"]["subtopic"] = linked_subtopic_id
                         st.rerun()
                 case "fileupload":
@@ -251,13 +251,6 @@ def serialize(btype: str, raw):
                 return {"type": "image", "url": url}
             except Exception as e:
                 return {"type": "image", "error": str(e)}
-
-        case "Flashcards Session" | "Feynman Session" | "Interleaving Session":
-            try:
-                json.dumps(raw)  # test serializability
-                return {"type": btype, "data": raw}
-            except Exception:
-                return {"type": btype, "repr": str(raw)}
 
         case _:
             try:
@@ -626,7 +619,7 @@ def interleave():
             if st.session_state.get("pin"):
                 st.session_state["interleaved_list"] = st.session_state["interleaved_list"].append(interleaved_subtopics)
                 st.session_state["pin"] = False
-            if st.button("Finish Session", key="interleave_end"):
+            if st.sidebar.button("Finish Session", key="interleave_end"):
                 st.session_state["interleave_finish_session"] = True
                 st.rerun()
     else:

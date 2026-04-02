@@ -4,6 +4,7 @@ import altair as alt
 from nav import notes, journal
 from utils import ml
 from supabase import create_client, Client
+import time
 import os
 
 # Supabase setup
@@ -176,5 +177,6 @@ def show_page():
                 for method, mscore in methods:
                     methods_list.append(f"{method} ({mscore:.2f})")
 
+            time.sleep(3)
             st.write(f"You should probably study **Biology** now.")
             st.write(f"Use **Feynman**.")
