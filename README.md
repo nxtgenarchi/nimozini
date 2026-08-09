@@ -1,6 +1,6 @@
 # NIMOZINI: Study & Mental Health Buddy
 
-#### Video Demo:  <URL HERE>
+#### Video Demo:  <https://youtu.be/yUyaSi2j524?si=qbSP7Ruk85gEHhSW>
 
 #### Description:
 NIMOZINI is my private Streamlit app which is a study mental wellness assistant designed to hold learning content, journal reflections, studying and emotional trends analytics, and ML-powered recommendations. The application integrates a Supabase backend for data persistence and includes modular features across Home, Dashboard, Notes, and Journal pages.
