@@ -176,7 +176,3 @@ def show_page():
             for subj, methods in recs.get("methods", {}).items():
                 for method, mscore in methods:
                     methods_list.append(f"{method} ({mscore:.2f})")
-
-            time.sleep(3)
-            st.write(f"You should probably study **Biology** now.")
-            st.write(f"Use **Feynman**.")
